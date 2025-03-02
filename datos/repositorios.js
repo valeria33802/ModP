@@ -1,4 +1,4 @@
-const pool = require('./configdb');
+require('./configdb')
 
 //view
 
@@ -37,10 +37,10 @@ async function loginUser(correo, contrasenia) {
     }
   }
 
-  async function sp_ModificarComprador( ncorreo, ncontrasenia, nnombre, napellido, ndireccion) {
+  async function sp_ModificarComprador(id, ncorreo, ncontrasenia, nnombre, napellido, ndireccion) {
     try {
       
-      const [result] = await pool.query('CALL sp_modificar_comprador( ?, ?, ?, ?, ?)', [ ncorreo, ncontrasenia, nnombre, napellido, ndireccion]);
+      const [result] = await pool.query('CALL sp_modificar_comprador(?, ?, ?, ?, ?, ?)', [id, ncorreo, ncontrasenia, nnombre, napellido, ndireccion]);
       const data = result[0];
       return data;
     } catch (error) {
@@ -73,10 +73,10 @@ async function loginUser(correo, contrasenia) {
     }
   }
 
-  async function sp_modificar_empleado(id, ncorreo, ncontrasenia, npuesto, nestado, nnombre, napellido, nhorario) {
+  async function sp_modificar_empleado(id, ncorreo, ncontrasenia, npuesto, nnombre, napellido, nhorario) {
     try {
       
-      const [result] = await pool.query('CALL sp_modificar_empleado(?, ?, ?, ?, ?, ?, ?,?)', [id, ncorreo, ncontrasenia, npuesto, nestado, nnombre, napellido, nhorario]);
+      const [result] = await pool.query('CALL sp_modificar_empleado(?, ?, ?, ?, ?, ?, ?)', [id, ncorreo, ncontrasenia, npuesto, nnombre, napellido, nhorario]);
       const data = result[0];
       return data;
     } catch (error) {
@@ -109,27 +109,64 @@ async function loginUser(correo, contrasenia) {
     }
   }
 
-  async function sp_filtrar_servicios(id, incremento) {
+  async function sp_filtrar_servicios(id) {
     try {
       
       const [result] = await pool.query('CALL sp_filtrar_servicios(?)', [id]);
       const data = result[0];
       return data;
     } catch (error) {
-      console.error('Error al ejecutar filtro:', error);
+      console.error('Error al ejecutar spd_login:', error);
       throw error;
     }
   }
 
-  const obtenerdatoscomprador = async () => {
+
+  async function sp_sumar_stock(id, incremento) {
     try {
-        const [rows] = await pool.query('CALL sp_generar_info_ultimo_comprador');
-        return rows;
+      
+      const [result] = await pool.query('CALL sp_sumar_stock(?)', [id, incremento]);
+      const data = result[0];
+      return data;
     } catch (error) {
-        console.error('Error al obtener usuario:', error);
-        throw error;
+      console.error('Error al ejecutar spd_login:', error);
+      throw error;
     }
-};
+  }
+
+  const sp_generar_info_ultimo_comprador = async () => {
+    try {
+      
+      const [rows] = await pool.query('CALL sp_generar_info_ultimo_comprador()');
+      return rows[0]; 
+    } catch (error) {
+      console.error('Error al obtener la info del último comprador:', error);
+      throw error;
+    }
+  };
+
+  const sp_historial_compra_ultimo_usuario = async () => {
+    try {
+      const [rows] = await pool.query('CALL sp_historial_compra_ultimo_usuario()');
+      return rows[0]; 
+    } catch (error) {
+      console.error('Error al obtener la info del último comprador:', error);
+      throw error;
+    }
+  };
+
+  
+  async function sp_modificar_empleado(id, ncorreo, ncontrasenia, npuesto, nnombre, napellido, nhorario) {
+    try {
+      
+      const [result] = await pool.query('CALL sp_modificar_empleado(?, ?, ?, ?, ?, ?, ?)', [id, ncorreo, ncontrasenia, npuesto, nnombre, napellido, nhorario]);
+      const data = result[0];
+      return data;
+    } catch (error) {
+      console.error('Error al modificar empleado', error);
+      throw error;
+    }
+  }
 
   module.exports = {
     obtenerperifericos,
@@ -141,6 +178,9 @@ async function loginUser(correo, contrasenia) {
     sp_modificar_empleado,
     sp_insert_proyecto_final,
     sp_sumar_stock,
-    sp_filtrar_servicios, 
-    obtenerdatoscomprador
+    sp_filtrar_servicios,
+    sp_sumar_stock,
+    sp_generar_info_ultimo_comprador,
+    sp_historial_compra_ultimo_usuario
 };
+
