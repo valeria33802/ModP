@@ -1,0 +1,17 @@
+const express = require('express');
+const cors = require('cors');
+require('dotenv').config();
+
+const app = express();
+const apiController = require('./controllers/apicontroller');
+
+app.use(cors());
+app.use(express.json());
+app.use('/api', apiController);
+
+
+app.use(express.static(__dirname + '/frontend'));
+
+const PORT = process.env.PORT || 3300;
+app.listen(PORT, () => console.log(`Servidor corriendo en http://localhost:${PORT}`));
+
