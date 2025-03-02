@@ -1,17 +1,31 @@
-// controllers/apiController.js
 const express = require('express');
 const router = express.Router();
-const services = require('../negocios/servicios');
+const servicios = require('../negocios/servicios'); //
+
 
 // Endpoint para login
 router.post('/login', async (req, res) => {
-  try {
     const { correo, contrasenia } = req.body;
-    const response = await services.loginService(correo, contrasenia);
-    res.json(response);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+
+    try {
+        const resultado = await servicios.loginService(correo, contrasenia);
+
+        if (resultado.length === 0) {
+            return res.status(401).json({ error: 'Usuario no reconocido o contraseña incorrecta' });
+        }
+
+        const mensaje = resultado[0].Mensaje; // Mensaje del SP
+        const posicion = resultado[0].Posicion; // Tipo de usuario
+
+        if (mensaje.includes('ha hecho sesión')) {
+            res.json({ success: true, mensaje, posicion });
+        } else {
+            res.status(401).json({ success: false, mensaje });
+        }
+    } catch (error) {
+        console.error('Error en login:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
 });
 
 // Endpoint para insertar comprador
@@ -28,7 +42,7 @@ router.post('/comprador', async (req, res) => {
 // Endpoint para modificar comprador
 router.put('/comprador/:id', async (req, res) => {
   try {
-    const id = req.params.id;
+    // const id = req.params.id;
     const { ncorreo, ncontrasenia, nnombre, napellido, ndireccion } = req.body;
     const response = await services.modificarCompradorService(id, ncorreo, ncontrasenia, nnombre, napellido, ndireccion);
     res.json(response);
@@ -63,8 +77,8 @@ router.post('/feedback', async (req, res) => {
 router.put('/empleado/:id', async (req, res) => {
   try {
     const id = req.params.id;
-    const { ncorreo, ncontrasenia, npuesto, nnombre, napellido, nhorario } = req.body;
-    const response = await services.modificarEmpleadoService(id, ncorreo, ncontrasenia, npuesto, nnombre, napellido, nhorario);
+    const { ncorreo, ncontrasenia, npuesto, nestado, nnombre, napellido, nhorario } = req.body;
+    const response = await services.modificarEmpleadoService(id, ncorreo, ncontrasenia, npuesto, nestado, nnombre, napellido, nhorario);
     res.json(response);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -114,6 +128,21 @@ router.get('/perifericos', async (req, res) => {
   }
 });
 
+router.get('/compradorlogin', async (req, res) => {
+  try {
+      const response = await servicios.obtenerCompradorLoginService();
+      
+      if (!response || response.length === 0) {
+          return res.status(404).json({ error: 'No hay datos disponibles.' });
+      }
+      
+      res.json(response);
+  } catch (error) {
+      console.error('Error en /compradorlogin:', error);
+      res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
 // Endpoint para obtener información del comprador (vista)
 router.get('/infocomprador', async (req, res) => {
   try {
@@ -124,7 +153,7 @@ router.get('/infocomprador', async (req, res) => {
   }
 });
 
-// Endpoint para obtener periféricos (vista)
+// Endpoint para obtener historial del comprador
 router.get('/historialcomprador', async (req, res) => {
   try {
     const response = await services.historial_compra_ultimo_usuarioService();
