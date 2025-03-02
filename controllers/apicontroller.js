@@ -121,10 +121,11 @@ router.get('/servicios/:id', async (req, res) => {
 // Endpoint para obtener periféricos (vista)
 router.get('/perifericos', async (req, res) => {
   try {
-    const response = await services.obtenerPerifericosService();
-    res.json(response);
+    const perifericos = await servicios.obtenerPerifericosService();
+    res.json(perifericos);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error en /perifericos:', error);
+    res.status(500).json({ error: 'Error al obtener los periféricos' });
   }
 });
 

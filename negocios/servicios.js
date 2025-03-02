@@ -9,8 +9,8 @@ const {
     sp_modificar_empleado,
     sp_insert_proyecto_final,
     sp_sumar_stock,
-    sp_filtrar_servicios,
     obtenerperifericos,
+    sp_filtrar_servicios,
     sp_generar_info_ultimo_comprador,
     sp_historial_compra_ultimo_usuario
  
@@ -104,6 +104,5 @@ const historial_compra_ultimo_usuarioService = async () => {
     obtenerPerifericosService,
     obtenerCompradorLoginService,
     historial_compra_ultimo_usuarioService,
-
   };
   

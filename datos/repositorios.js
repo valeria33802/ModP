@@ -4,7 +4,7 @@ const pool = require('./configdb');
 
 const obtenerperifericos = async () => {
     try {
-        const [rows] = await pool.query('SELECT * FROM vista_perifericos');
+        const [rows] = await pool.query('select * from vista_perifericos_compradores');
         return rows;
     } catch (error) {
         console.error('Error al obtener perifericos:', error);

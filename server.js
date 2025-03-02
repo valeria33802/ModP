@@ -7,11 +7,14 @@ const apiController = require('./controllers/apicontroller');
 
 app.use(cors());
 app.use(express.json());
+
+
 app.use('/api', apiController);
 
 
-app.use(express.static(__dirname + '/frontend'));
+app.use(express.static('frontend'));
 
 const PORT = process.env.PORT || 3300;
 app.listen(PORT, () => console.log(`Servidor corriendo en http://localhost:${PORT}`));
+
 

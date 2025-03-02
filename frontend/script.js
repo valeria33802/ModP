@@ -67,3 +67,58 @@ document.addEventListener("DOMContentLoaded", async function () {
 });
 
 // menejo del catologo desde la vista de los usuarios
+
+document.addEventListener("DOMContentLoaded", async function () {
+    // Verificamos si estamos en la página "catalogo.html"
+    if (window.location.pathname.includes("catalogovistausuario.html")) {
+      try {
+        const response = await fetch("http://localhost:3300/api/perifericos");
+        const data = await response.json();
+  
+        if (!data || data.length === 0) {
+          console.error("No se encontraron periféricos.");
+          return;
+        }
+  
+        // 1. Preparar mapeo de "Tipo Periferico" -> ID de contenedor
+        const contenedores = {
+          "Teclados": "tecladosContent",
+          "Ratones": "ratonesContent",
+          "Parlantes": "parlantesContent",
+          "Webcams": "webcamsContent",
+          "Micrófonos": "microfonosContent"
+        };
+  
+        // 2. Iterar sobre la data y ubicar cada producto en su contenedor
+        data.forEach((item) => {
+          const tipo = item["Tipo Periferico"];  // Ejemplo: "Teclados"
+          const contenedorID = contenedores[tipo];
+  
+          // Si el tipo existe en nuestro mapeo, insertamos HTML
+          if (contenedorID) {
+            const contenedor = document.getElementById(contenedorID);
+            if (contenedor) {
+              // Inserta un bloque con la descripción y precio
+              contenedor.innerHTML += `
+                <div class="catalog-content">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                      <!-- Nombre del producto y descripción -->
+                      <h5 class="mb-1">${item.Nombre}</h5>
+                      <p class="mb-1"><strong>Descripción:</strong> ${item.Descripción}</p>
+                      <p class="mb-1"><strong>Precio:</strong> $${item.Precio}</p>
+                    </div>
+                    <!-- Botón comprar -->
+                    <button class="btn btn-primary btn-sm ms-3">Comprar</button>
+                  </div>
+                </div>
+              `;
+            }
+          }
+        });
+      } catch (error) {
+        console.error("Error al obtener periféricos:", error);
+      }
+    }
+  });
+  
