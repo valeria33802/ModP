@@ -68,57 +68,81 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 // menejo del catologo desde la vista de los usuarios
 
-document.addEventListener("DOMContentLoaded", async function () {
-    // Verificamos si estamos en la página "catalogo.html"
+document.addEventListener("DOMContentLoaded", async function() {
+    // Verificamos si estamos en "catalogo.html"
     if (window.location.pathname.includes("catalogovistausuario.html")) {
       try {
+        // 1. Pedir datos al endpoint
         const response = await fetch("http://localhost:3300/api/perifericos");
         const data = await response.json();
+        console.log("Artículos recibidos:", data);
   
         if (!data || data.length === 0) {
-          console.error("No se encontraron periféricos.");
+          console.error("No se encontraron artículos.");
           return;
         }
   
-        // 1. Preparar mapeo de "Tipo Periferico" -> ID de contenedor
-        const contenedores = {
-          "Teclados": "tecladosContent",
-          "Ratones": "ratonesContent",
-          "Parlantes": "parlantesContent",
-          "Webcams": "webcamsContent",
-          "Micrófonos": "microfonosContent"
-        };
+        // 2. Agrupar artículos por categoría (opcional)
+        const articulosPorCategoria = {};
+        data.forEach(item => {
+          const categoria = item["Tipo Periferico"];
+          if (!articulosPorCategoria[categoria]) {
+            articulosPorCategoria[categoria] = [];
+          }
+          articulosPorCategoria[categoria].push(item);
+        });
   
-        // 2. Iterar sobre la data y ubicar cada producto en su contenedor
-        data.forEach((item) => {
-          const tipo = item["Tipo Periferico"];  // Ejemplo: "Teclados"
-          const contenedorID = contenedores[tipo];
+        // 3. Seleccionar el contenedor general
+        const catalogContainer = document.getElementById("catalogContainer");
   
-          // Si el tipo existe en nuestro mapeo, insertamos HTML
-          if (contenedorID) {
-            const contenedor = document.getElementById(contenedorID);
-            if (contenedor) {
-              // Inserta un bloque con la descripción y precio
-              contenedor.innerHTML += `
-                <div class="catalog-content">
-                  <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                      <!-- Nombre del producto y descripción -->
-                      <h5 class="mb-1">${item.Nombre}</h5>
-                      <p class="mb-1"><strong>Descripción:</strong> ${item.Descripción}</p>
-                      <p class="mb-1"><strong>Precio:</strong> $${item.Precio}</p>
-                    </div>
-                    <!-- Botón comprar -->
-                    <button class="btn btn-primary btn-sm ms-3">Comprar</button>
+        // 4. Iterar por cada categoría y sus artículos
+        Object.keys(articulosPorCategoria).forEach((categoria) => {
+          const productos = articulosPorCategoria[categoria];
+          
+          // Para cada producto, creamos una tarjeta colapsable
+          productos.forEach((producto, index) => {
+            // Generar un ID único para el collapse
+            const collapseID = `${categoria}_${index}_collapse`;
+            const cardHTML = `
+              <div class="catalog-item mb-3 p-2 border rounded">
+                <div 
+                  class="catalog-item-header d-flex justify-content-between align-items-center"
+                  data-bs-toggle="collapse" 
+                  data-bs-target="#${collapseID}"
+                  style="cursor: pointer;"
+                >
+                  <div>
+                    <h5 class="mb-0">${categoria} - ${producto.Nombre}</h5>
+                    <small>Toca aquí para desplegar</small>
+                  </div>
+                  <div>
+                    <i class="bi bi-arrow-down-square-fill me-2"></i>
+                    <i class="bi bi-image"></i>
                   </div>
                 </div>
-              `;
-            }
-          }
+                <div id="${collapseID}" class="collapse mt-2">
+                  <div class="catalog-content">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <div>
+                        <p class="mb-1"><strong>Descripción:</strong> ${producto.Descripcion}</p>
+                        <p class="mb-1"><strong>Precio:</strong> $${producto.Precio.toFixed(2)}</p>
+                      </div>
+                      <button class="btn btn-primary btn-sm ms-3" onclick="window.location.href='carritocompras.html?nombre=${encodeURIComponent(producto.Nombre)}'">Comprar</button>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+            // Insertar la tarjeta en el contenedor general
+            catalogContainer.innerHTML += cardHTML;
+          });
         });
+        
       } catch (error) {
-        console.error("Error al obtener periféricos:", error);
+        console.error("Error al cargar el catálogo:", error);
       }
     }
   });
+  
   

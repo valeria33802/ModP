@@ -82,12 +82,22 @@ const {
     }
 };
 
-const obtenerPerifericosService = async () => {
-  return await obtenerperifericos();
-};
+// const obtenerPerifericosService = async () => {
+//   return await obtenerperifericos();
+// };
 
 const historial_compra_ultimo_usuarioService = async () => {
   return await sp_historial_compra_ultimo_usuario(); 
+};
+
+const obtenerPerifericosService = async () => {
+  try {
+      const [rows] = await obtenerperifericos();
+      return rows; // Devolver solo los datos obtenidos
+  } catch (error) {
+      console.error('Error al obtener datos del comprador:', error);
+      throw error;
+  }
 };
 
   

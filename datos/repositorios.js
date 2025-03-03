@@ -2,15 +2,15 @@ const pool = require('./configdb');
 
 //view
 
-const obtenerperifericos = async () => {
-    try {
-        const [rows] = await pool.query('select * from vista_perifericos_compradores');
-        return rows;
-    } catch (error) {
-        console.error('Error al obtener perifericos:', error);
-        throw error;
-    }
-};
+// const obtenerperifericos = async () => {
+//     try {
+//         const [rows] = await pool.query('select * from vista_perifericos_compradores');
+//         return rows;
+//     } catch (error) {
+//         console.error('Error al obtener perifericos:', error);
+//         throw error;
+//     }
+// };
 
 //--------------------------
 async function loginUser(correo, contrasenia) {
@@ -154,6 +154,17 @@ async function sp_modificar_empleado(id, ncorreo, ncontrasenia, npuesto, nnombre
   }
 }
 
+const obtenerperifericos = async () => {
+  try {
+    // Llamamos al SP que ejecuta la vista
+    const [rows] = await pool.query('CALL ejecutar_vista_articulos()');
+    // MySQL retorna un arreglo bidimensional para CALL, el primer result set está en rows[0]
+    return rows;
+  } catch (error) {
+    console.error('Error al obtener periféricos:', error);
+    throw error;
+  }
+};
 
 
 

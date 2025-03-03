@@ -32,7 +32,7 @@ router.post('/login', async (req, res) => {
 router.post('/comprador', async (req, res) => {
   try {
     const { correo, contrasenia, nombre, apellido, direccion } = req.body;
-    const response = await services.insertarCompradorService(correo, contrasenia, nombre, apellido, direccion);
+    const response = await servicios.insertarCompradorService(correo, contrasenia, nombre, apellido, direccion);
     res.json(response);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -44,7 +44,7 @@ router.put('/comprador/:id', async (req, res) => {
   try {
     // const id = req.params.id;
     const { ncorreo, ncontrasenia, nnombre, napellido, ndireccion } = req.body;
-    const response = await services.modificarCompradorService(id, ncorreo, ncontrasenia, nnombre, napellido, ndireccion);
+    const response = await servicios.modificarCompradorService(id, ncorreo, ncontrasenia, nnombre, napellido, ndireccion);
     res.json(response);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -55,7 +55,7 @@ router.put('/comprador/:id', async (req, res) => {
 router.get('/cliente/:id', async (req, res) => {
   try {
     const id = req.params.id;
-    const response = await services.generarDatoClienteService(id);
+    const response = await servicios.generarDatoClienteService(id);
     res.json(response);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -66,7 +66,7 @@ router.get('/cliente/:id', async (req, res) => {
 router.post('/feedback', async (req, res) => {
   try {
     const { calificacion, comentario } = req.body;
-    const response = await services.insertFeedbackService(calificacion, comentario);
+    const response = await servicios.insertFeedbackService(calificacion, comentario);
     res.json(response);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -78,7 +78,7 @@ router.put('/empleado/:id', async (req, res) => {
   try {
     const id = req.params.id;
     const { ncorreo, ncontrasenia, npuesto, nestado, nnombre, napellido, nhorario } = req.body;
-    const response = await services.modificarEmpleadoService(id, ncorreo, ncontrasenia, npuesto, nestado, nnombre, napellido, nhorario);
+    const response = await servicios.modificarEmpleadoService(id, ncorreo, ncontrasenia, npuesto, nestado, nnombre, napellido, nhorario);
     res.json(response);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -89,7 +89,7 @@ router.put('/empleado/:id', async (req, res) => {
 router.post('/proyecto', async (req, res) => {
   try {
     const { idarticulo, idcomprador, p_modificaciones } = req.body;
-    const response = await services.insertProyectoFinalService(idarticulo, idcomprador, p_modificaciones);
+    const response = await servicios.insertProyectoFinalService(idarticulo, idcomprador, p_modificaciones);
     res.json(response);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -100,7 +100,7 @@ router.post('/proyecto', async (req, res) => {
 router.put('/stock', async (req, res) => {
   try {
     const { id, incremento } = req.body;
-    const response = await services.sumarStockService(id, incremento);
+    const response = await servicios.sumarStockService(id, incremento);
     res.json(response);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -111,23 +111,23 @@ router.put('/stock', async (req, res) => {
 router.get('/servicios/:id', async (req, res) => {
   try {
     const id = req.params.id;
-    const response = await services.filtrarServiciosService(id);
+    const response = await servicios.filtrarServiciosService(id);
     res.json(response);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Endpoint para obtener periféricos (vista)
-router.get('/perifericos', async (req, res) => {
-  try {
-    const perifericos = await servicios.obtenerPerifericosService();
-    res.json(perifericos);
-  } catch (error) {
-    console.error('Error en /perifericos:', error);
-    res.status(500).json({ error: 'Error al obtener los periféricos' });
-  }
-});
+// // Endpoint para obtener periféricos (vista)
+// router.get('/perifericos', async (req, res) => {
+//   try {
+//     const perifericos = await servicios.obtenerPerifericosService();
+//     res.json(perifericos);
+//   } catch (error) {
+//     console.error('Error en /perifericos:', error);
+//     res.status(500).json({ error: 'Error al obtener los periféricos' });
+//   }
+// });
 
 router.get('/compradorlogin', async (req, res) => {
   try {
@@ -147,7 +147,7 @@ router.get('/compradorlogin', async (req, res) => {
 // Endpoint para obtener información del comprador (vista)
 router.get('/infocomprador', async (req, res) => {
   try {
-    const response = await services.generar_info_compradorService();
+    const response = await servicios.generar_info_compradorService();
     res.json(response);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -157,10 +157,21 @@ router.get('/infocomprador', async (req, res) => {
 // Endpoint para obtener historial del comprador
 router.get('/historialcomprador', async (req, res) => {
   try {
-    const response = await services.historial_compra_ultimo_usuarioService();
+    const response = await servicios.historial_compra_ultimo_usuarioService();
     res.json(response);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// Endpoint para obtener perifericos
+router.get('/perifericos', async (req, res) => {
+  try {
+    const perifericos = await servicios.obtenerPerifericosService();
+    res.json(perifericos);
+  } catch (error) {
+    console.error('Error en /perifericos:', error);
+    res.status(500).json({ error: 'Error al obtener los periféricos' });
   }
 });
 
