@@ -14,6 +14,7 @@ const {
     sp_filtrar_servicios,
     sp_generar_info_ultimo_comprador,
     sp_historial_compra_ultimo_usuario,
+    ejecutar_vista_calificaciones
  
   } = repositorios = require('../datos/repositorios'); 
   
@@ -111,6 +112,16 @@ const vistaFAQService = async () => {
   }
 };
 
+const vistacalificacionesService = async () => {
+  try {
+      const [rows] = await ejecutar_vista_calificaciones();
+      return rows; // Devolver solo los datos obtenidos
+  } catch (error) {
+      console.error('Error al obtener datos del comprador:', error);
+      throw error;
+  }
+};
+
   
   module.exports = {
     loginService,
@@ -125,6 +136,7 @@ const vistaFAQService = async () => {
     obtenerPerifericosService,
     obtenerCompradorLoginService,
     historial_compra_ultimo_usuarioService,
-    vistaFAQService
+    vistaFAQService,
+    vistacalificacionesService
   };
   

@@ -187,4 +187,117 @@ document.addEventListener("DOMContentLoaded", async function() {
   });
   
   
+  // historial
+
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Verificamos si estamos en la página de historial (ajusta el criterio según el nombre de tu archivo)
+    if (window.location.pathname.includes("historial.html")) {
+      try {
+        // 1. Obtener los datos del historial desde el endpoint
+        const response = await fetch("http://localhost:3300/api/historialcomprador");
+        const data = await response.json();
+        console.log("Historial de compras recibido:", data);
+    
+        if (!data || data.length === 0) {
+          console.error("No se encontraron registros de historial.");
+          return;
+        }
+    
+        // 2. Seleccionar el contenedor donde se mostrarán los items
+        const historyContainer = document.querySelector(".history-items");
+        // Limpiar el contenedor en caso de tener contenido previo
+        historyContainer.innerHTML = "";
+    
+        // 3. Iterar sobre cada registro del historial y generar el HTML
+        data.forEach(item => {
+          // Ajusta los nombres de las propiedades según cómo se devuelvan.
+          // Se asume que el objeto tiene las siguientes llaves:
+          // "id factura", "articulo", "precio item", "fecha", "detalle compra", "personalizaciones"
+          const idFactura = item["ID Factura"] || item.id_factura || "Sin ID";
+          const articulo = item["Articulo"] || "Sin artículo";
+          const precio = item["Precio item"] || item.precio_item || 0;
+          const fecha = item["Fecha"] || "Sin fecha";
+          const detalle = item["Detalle compra"] || item.detalle_compra || "Sin detalle";
+          const personalizaciones = item["Personalizaciones"] || "Sin personalizaciones";
+    
+          // Crear el HTML para cada history-item
+          const historyHTML = `
+            <div class="history-item d-flex justify-content-between align-items-center mb-3 p-2 border rounded">
+              <div>
+                <h6 class="mb-0">Factura: ${idFactura}</h6>
+                <small class="text-muted">Artículo: ${articulo}</small><br>
+                <small class="text-muted">Detalle: ${detalle}</small><br>
+                <small class="text-muted">Personalizaciones: ${personalizaciones}</small>
+              </div>
+              <div class="text-end">
+                <p class="mb-0">Fecha: ${fecha}</p>
+                <p class="mb-0">Precio: ₡${parseFloat(precio).toFixed(2)}</p>
+              </div>
+            </div>
+          `;
+    
+          // Insertar el HTML en el contenedor
+          historyContainer.innerHTML += historyHTML;
+        });
+    
+      } catch (error) {
+        console.error("Error al cargar el historial:", error);
+      }
+    }
+  });
+  
+// función para obtener calificaciones
+
+document.addEventListener("DOMContentLoaded", async function() {
+  // Verifica si la ruta del archivo coincide (opcional)
+  if (window.location.pathname.includes("resenias.html")) {
+    try {
+      // 1) Llamar a la API para obtener la lista de calificaciones
+      const response = await fetch("http://localhost:3300/api/calificaciones");
+      const data = await response.json();
+      console.log("Calificaciones recibidas:", data);
+
+      // 2) Seleccionar la sección de reseñas existentes
+      const existingReviews = document.querySelector(".existing-reviews");
+      // Borrar el contenido de ejemplo si lo deseas
+      existingReviews.innerHTML = "";
+
+      // 3) Iterar sobre cada objeto devuelto por la API
+      data.forEach(item => {
+        const calificacion = parseInt(item.Calificacion) || 0; 
+        const comentario = item.Descripción || "Sin comentario";
+
+        // Generar estrellas: si la calificación es 3, habrá 3 "bi-star-fill" y 2 "bi-star"
+        let starsHTML = "";
+        for (let i = 1; i <= 5; i++) {
+          if (i <= calificacion) {
+            starsHTML += `<i class="bi bi-star-fill"></i>`;
+          } else {
+            starsHTML += `<i class="bi bi-star"></i>`;
+          }
+        }
+
+        // 4) Crear el bloque HTML con la misma clase y estilo
+        const reviewHTML = `
+          <div class="review-item d-flex mb-3">
+            <div class="user-img me-2">
+              <i class="bi bi-person fs-4"></i>
+            </div>
+            <div class="review-content">
+              <div class="stars">
+                ${starsHTML}
+              </div>
+              <p class="m-0">${comentario}</p>
+            </div>
+          </div>
+        `;
+
+        // 5) Insertar el bloque en .existing-reviews
+        existingReviews.innerHTML += reviewHTML;
+      });
+    } catch (error) {
+      console.error("Error al cargar las calificaciones:", error);
+    }
+  }
+});
   

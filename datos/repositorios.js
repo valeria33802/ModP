@@ -123,7 +123,7 @@ async function loginUser(correo, contrasenia) {
 
   const sp_generar_info_ultimo_comprador = async () => {
     try {
-        const [rows] = await pool.query('CALL sp_generar_info_ultimo_comprador');
+        const [rows] = await pool.query('CALL sp_generar_info_ultimo_comprador()');
         return rows;
     } catch (error) {
         console.error('Error al obtener usuario:', error);
@@ -140,6 +140,8 @@ const sp_historial_compra_ultimo_usuario = async () => {
     throw error;
   }
 };
+
+
 
 
 async function sp_modificar_empleado(id, ncorreo, ncontrasenia, npuesto, nnombre, napellido, nhorario) {
@@ -177,6 +179,16 @@ const ejecutar_vista_faq = async () => {
   }
 };
 
+const ejecutar_vista_calificaciones = async () => {
+  try {
+      const [rows] = await pool.query('CALL ejecutar_vista_calificaciones()');
+      return rows;
+  } catch (error) {
+      console.error('Error al obtener usuario:', error);
+      throw error;
+  }
+};
+
 
   module.exports = {
     obtenerperifericos,
@@ -191,5 +203,6 @@ const ejecutar_vista_faq = async () => {
     sp_filtrar_servicios, 
     sp_generar_info_ultimo_comprador, 
     sp_historial_compra_ultimo_usuario,
-    ejecutar_vista_faq
+    ejecutar_vista_faq,
+    ejecutar_vista_calificaciones
 };
