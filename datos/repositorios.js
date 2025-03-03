@@ -167,6 +167,16 @@ const obtenerperifericos = async () => {
 };
 
 
+const ejecutar_vista_faq = async () => {
+  try {
+      const [rows] = await pool.query('CALL ejecutar_vista_faq()');
+      return rows;
+  } catch (error) {
+      console.error('Error al obtener usuario:', error);
+      throw error;
+  }
+};
+
 
   module.exports = {
     obtenerperifericos,
@@ -180,5 +190,6 @@ const obtenerperifericos = async () => {
     sp_sumar_stock,
     sp_filtrar_servicios, 
     sp_generar_info_ultimo_comprador, 
-    sp_historial_compra_ultimo_usuario
+    sp_historial_compra_ultimo_usuario,
+    ejecutar_vista_faq
 };

@@ -144,5 +144,47 @@ document.addEventListener("DOMContentLoaded", async function() {
       }
     }
   });
+
+
+  // función para llamar sp de faq
+
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Verifica que estamos en la página FAQ (ajusta el nombre según corresponda)
+    if (window.location.pathname.includes("faq.html")) {
+      try {
+        // Hacer fetch al endpoint de FAQ
+        const response = await fetch("http://localhost:3300/api/faq");
+        const data = await response.json();
+        console.log("FAQs recibidas:", data);
+  
+        // Seleccionar el contenedor de FAQ
+        const faqContainer = document.querySelector(".faq-items");
+        if (!faqContainer) {
+          console.error("No se encontró el contenedor de FAQ (.faq-items)");
+          return;
+        }
+  
+        // Limpiar el contenido actual (si es necesario)
+        faqContainer.innerHTML = "";
+  
+        // Iterar sobre cada objeto FAQ (asumiendo que cada objeto tiene la propiedad "Pregunta")
+        data.forEach(item => {
+          // Crear un div para cada FAQ
+          const faqItem = document.createElement("div");
+          faqItem.classList.add("faq-item", "mb-2", "p-2");
+          // Se puede personalizar la respuesta si se desea; por ahora se deja un texto fijo o vacío
+          faqItem.innerHTML = `
+            <h6 class="mb-1">${item.Pregunta}</h6>
+    //        <p class="mb-0 text-muted">Respuesta: ...</p>
+          `;
+          // Insertar el FAQ en el contenedor
+          faqContainer.appendChild(faqItem);
+        });
+      } catch (error) {
+        console.error("Error al cargar las FAQs:", error);
+      }
+    }
+  });
+  
   
   

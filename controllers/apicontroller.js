@@ -175,5 +175,28 @@ router.get('/perifericos', async (req, res) => {
   }
 });
 
+// Endpoint para obtener perifericos
+router.get('/perifericos', async (req, res) => {
+  try {
+    const perifericos = await servicios.obtenerPerifericosService();
+    res.json(perifericos);
+  } catch (error) {
+    console.error('Error en /perifericos:', error);
+    res.status(500).json({ error: 'Error al obtener los periféricos' });
+  }
+});
+
+
+// Endpoint para obtener faq
+router.get('/faq', async (req, res) => {
+  try {
+    const perifericos = await servicios.vistaFAQService();
+    res.json(perifericos);
+  } catch (error) {
+    console.error('Error en /faq:', error);
+    res.status(500).json({ error: 'Error al obtener los periféricos' });
+  }
+});
+
 
 module.exports = router;
