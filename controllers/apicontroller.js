@@ -5,10 +5,10 @@ const servicios = require('../negocios/servicios'); //
 
 // Endpoint para login
 router.post('/login', async (req, res) => {
-    const { correo, contrasenia } = req.body;
+    const { nombreusuario, contrasenia } = req.body;
 
     try {
-        const resultado = await servicios.loginService(correo, contrasenia);
+        const resultado = await servicios.loginService(nombreusuario, contrasenia);
 
         if (resultado.length === 0) {
             return res.status(401).json({ error: 'Usuario no reconocido o contraseña incorrecta' });
@@ -29,10 +29,10 @@ router.post('/login', async (req, res) => {
 });
 
 // Endpoint para insertar comprador
-router.post('/comprador', async (req, res) => {
+router.post('/insertarcomprador', async (req, res) => {
   try {
-    const { correo, contrasenia, nombre, apellido, direccion } = req.body;
-    const response = await servicios.insertarCompradorService(correo, contrasenia, nombre, apellido, direccion);
+    const {nombreusuario, correo, contrasenia } = req.body;
+    const response = await servicios.insertarCompradorService(nombreusuario, correo, contrasenia);
     res.json(response);
   } catch (error) {
     res.status(500).json({ error: error.message });

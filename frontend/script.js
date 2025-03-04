@@ -7,14 +7,14 @@ document.addEventListener('DOMContentLoaded', function () {
         loginForm.addEventListener('submit', async function (event) {
             event.preventDefault(); // Evita el envío del formulario tradicional
 
-            const correo = document.getElementById('correo').value;
+            const nombreusuario = document.getElementById('nombreusuario').value;
             const contrasenia = document.getElementById('password').value;
             const mensajeError = document.getElementById('mensajeError');
 
             try {
                 const response = await axios.post('http://localhost:3300/api/login', {
-                    correo,
-                    contrasenia
+                  nombreusuario,
+                  contrasenia
                 });
 
                 if (response.data.success) {
@@ -92,14 +92,14 @@ document.addEventListener("DOMContentLoaded", async function() {
           articulosPorCategoria[categoria].push(item);
         });
   
-        // 3. Seleccionar el contenedor general
+        
         const catalogContainer = document.getElementById("catalogContainer");
   
-        // 4. Iterar por cada categoría y sus artículos
+        
         Object.keys(articulosPorCategoria).forEach((categoria) => {
           const productos = articulosPorCategoria[categoria];
           
-          // Para cada producto, creamos una tarjeta colapsable
+          // Para cada producto, una tarjeta colapsable
           productos.forEach((producto, index) => {
             // Generar un ID único para el collapse
             const collapseID = `${categoria}_${index}_collapse`;
@@ -164,7 +164,7 @@ document.addEventListener("DOMContentLoaded", async function() {
           return;
         }
   
-        // Limpiar el contenido actual (si es necesario)
+       // resetear contenido
         faqContainer.innerHTML = "";
   
         // Iterar sobre cada objeto FAQ (asumiendo que cada objeto tiene la propiedad "Pregunta")
@@ -172,7 +172,7 @@ document.addEventListener("DOMContentLoaded", async function() {
           // Crear un div para cada FAQ
           const faqItem = document.createElement("div");
           faqItem.classList.add("faq-item", "mb-2", "p-2");
-          // Se puede personalizar la respuesta si se desea; por ahora se deja un texto fijo o vacío
+          
           faqItem.innerHTML = `
             <h6 class="mb-1">${item.Pregunta}</h6>
     //        <p class="mb-0 text-muted">Respuesta: ...</p>
@@ -205,14 +205,12 @@ document.addEventListener("DOMContentLoaded", async function() {
     
         // 2. Seleccionar el contenedor donde se mostrarán los items
         const historyContainer = document.querySelector(".history-items");
-        // Limpiar el contenedor en caso de tener contenido previo
+        
         historyContainer.innerHTML = "";
     
         // 3. Iterar sobre cada registro del historial y generar el HTML
         data.forEach(item => {
-          // Ajusta los nombres de las propiedades según cómo se devuelvan.
-          // Se asume que el objeto tiene las siguientes llaves:
-          // "id factura", "articulo", "precio item", "fecha", "detalle compra", "personalizaciones"
+          
           const idFactura = item["ID Factura"] || item.id_factura || "Sin ID";
           const articulo = item["Articulo"] || "Sin artículo";
           const precio = item["Precio item"] || item.precio_item || 0;
@@ -220,7 +218,7 @@ document.addEventListener("DOMContentLoaded", async function() {
           const detalle = item["Detalle compra"] || item.detalle_compra || "Sin detalle";
           const personalizaciones = item["Personalizaciones"] || "Sin personalizaciones";
     
-          // Crear el HTML para cada history-item
+          // html
           const historyHTML = `
             <div class="history-item d-flex justify-content-between align-items-center mb-3 p-2 border rounded">
               <div>
@@ -236,7 +234,7 @@ document.addEventListener("DOMContentLoaded", async function() {
             </div>
           `;
     
-          // Insertar el HTML en el contenedor
+          // insertar en el contenedor
           historyContainer.innerHTML += historyHTML;
         });
     
@@ -252,14 +250,14 @@ document.addEventListener("DOMContentLoaded", async function() {
   // Verifica si la ruta del archivo coincide (opcional)
   if (window.location.pathname.includes("resenias.html")) {
     try {
-      // 1) Llamar a la API para obtener la lista de calificaciones
+      //api
       const response = await fetch("http://localhost:3300/api/calificaciones");
       const data = await response.json();
       console.log("Calificaciones recibidas:", data);
 
-      // 2) Seleccionar la sección de reseñas existentes
+      //reseñas
       const existingReviews = document.querySelector(".existing-reviews");
-      // Borrar el contenido de ejemplo si lo deseas
+      
       existingReviews.innerHTML = "";
 
       // 3) Iterar sobre cada objeto devuelto por la API
@@ -277,7 +275,6 @@ document.addEventListener("DOMContentLoaded", async function() {
           }
         }
 
-        // 4) Crear el bloque HTML con la misma clase y estilo
         const reviewHTML = `
           <div class="review-item d-flex mb-3">
             <div class="user-img me-2">
@@ -301,3 +298,114 @@ document.addEventListener("DOMContentLoaded", async function() {
   }
 });
   
+
+// validar tamaño de la contraseña e insert
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Elementos
+  const crearCuentaForm = document.getElementById('crearCuentaForm');
+  const nombreusuarioField = document.getElementById('nombreusuario');
+  const correoField = document.getElementById('correo');
+  const passwordField = document.getElementById('password');
+  const confirmPasswordField = document.getElementById('confirmPassword');
+  const mensajeError = document.getElementById('mensajeError');
+  
+  // Barra de progreso (opcional para la fuerza de la contraseña)
+  const passwordProgress = document.getElementById('passwordProgress');
+  
+  // Función para chequear fuerza de contraseña (opcional)
+  function checkPasswordStrength(password) {
+    let score = 0;
+    
+    // Requisito 1: Longitud >= 14
+    if (password.length >= 14) score++;
+    // Requisito 2: Al menos una mayúscula
+    if (/[A-Z]/.test(password)) score++;
+    // Requisito 3: Al menos una minúscula
+    if (/[a-z]/.test(password)) score++;
+    // Requisito 4: Al menos un dígito
+    if (/\d/.test(password)) score++;
+    // Requisito 5: Al menos un caracter especial
+    if (/[!@#$%^&*()_\-+={}\[\]|\\:;"'<>,.?/`~]/.test(password)) score++;
+    
+    return score; // Valor de 0 a 5
+  }
+  
+  // Actualizar barra de progreso a medida que escribe en la contraseña
+  passwordField.addEventListener('input', function() {
+    const pwdValue = passwordField.value;
+    const score = checkPasswordStrength(pwdValue);
+    const percentage = (score / 5) * 100; // 0, 20, 40, 60, 80, 100
+    
+    passwordProgress.style.width = percentage + '%';
+    passwordProgress.setAttribute('aria-valuenow', percentage);
+    
+    passwordProgress.classList.remove('bg-danger', 'bg-warning', 'bg-success');
+    if (score <= 2) {
+      passwordProgress.classList.add('bg-danger');
+    } else if (score === 3) {
+      passwordProgress.classList.add('bg-warning');
+    } else {
+      passwordProgress.classList.add('bg-success');
+    }
+  });
+
+  // Manejo del Submit
+  crearCuentaForm.addEventListener('submit', async function(e) {
+    e.preventDefault(); // Evita el envío tradicional
+    
+    // Ocultar mensaje de error anterior
+    mensajeError.style.display = 'none';
+    
+    // Obtener valores
+    const nombreusuario = nombreusuarioField.value.trim();
+    const correo = correoField.value.trim();
+    const password = passwordField.value;
+    const confirmPassword = confirmPasswordField.value;
+    
+    // Validar que ambas contraseñas coincidan
+    if (password !== confirmPassword) {
+      mensajeError.innerText = 'Las contraseñas no coinciden.';
+      mensajeError.style.display = 'block';
+      return;
+    }
+    
+    // Chequear fuerza mínima (opcional)
+    const score = checkPasswordStrength(password);
+    if (score < 5) {
+      mensajeError.innerText = 'La contraseña no cumple todos los requisitos de seguridad.';
+      mensajeError.style.display = 'block';
+      return;
+    }
+    
+    try {
+      // Llamar al endpoint /api/insertarcomprador
+      const response = await axios.post('http://localhost:3300/api/insertarcomprador', {
+        nombreusuario,
+        correo,
+        contrasenia: password
+      });
+      
+      // Si la SP o el endpoint devuelven data con éxito
+      // “response.data” contendrá la información devuelta
+      console.log('Respuesta del servidor:', response.data);
+      
+      // Podrías redirigir o mostrar un mensaje de éxito
+      alert('Cuenta creada exitosamente');
+      //window.location.href = 'inicio.html'; // Ejemplo de redirección
+      
+    } catch (error) {
+      console.error('Error al crear cuenta:', error);
+      
+      // Manejo de errores
+      // Cuando el SP lanza SIGNAL, MySQL manda un error que se convierte en HTTP 500
+      // “error.response.data.error” suele contener error.message
+      if (error.response && error.response.data && error.response.data.error) {
+        mensajeError.innerText = error.response.data.error;
+      } else {
+        mensajeError.innerText = 'Error al crear la cuenta.';
+      }
+      mensajeError.style.display = 'block';
+    }
+  });
+});

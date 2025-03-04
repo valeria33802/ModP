@@ -13,10 +13,10 @@ const pool = require('./configdb');
 // };
 
 //--------------------------
-async function loginUser(correo, contrasenia) {
+async function loginUser(nombreusuario, contrasenia) {
     try {
       
-      const [result] = await pool.query('CALL spd_login(?, ?)', [correo, contrasenia]);
+      const [result] = await pool.query('CALL spd_login(?, ?)', [nombreusuario, contrasenia]);
       const data = result[0];
       return data;
     } catch (error) {
@@ -25,10 +25,10 @@ async function loginUser(correo, contrasenia) {
     }
   }
 
-  async function sp_InsertarComprador(correo, contrasenia, nombre, apellido, direccion) {
+  async function sp_InsertarComprador(nombreusuario, correo, contrasenia) {
     try {
       
-      const [result] = await pool.query('CALL sp_InsertarComprador(?, ?, ?, ?, ?)', [correo, contrasenia, nombre, apellido, direccion]);
+      const [result] = await pool.query('CALL sp_insert_comprador(?, ?, ?)', [nombreusuario, correo, contrasenia]);
       const data = result[0];
       return data;
     } catch (error) {

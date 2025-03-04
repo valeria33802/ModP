@@ -19,15 +19,15 @@ const {
   } = repositorios = require('../datos/repositorios'); 
   
   // Función de negocio para el login
-  async function loginService(correo, contrasenia) {
+  async function loginService(nombreusuario, contrasenia) {
     
-    const response = await loginUser(correo, contrasenia);
+    const response = await loginUser(nombreusuario, contrasenia);
     return response;
   }
   
   // Función para insertar comprador
-  async function insertarCompradorService(correo, contrasenia, nombre, apellido, direccion) {
-    const response = await sp_InsertarComprador(correo, contrasenia, nombre, apellido, direccion);
+  async function insertarCompradorService(nombreusuario, correo, contrasenia) {
+    const response = await sp_InsertarComprador(nombreusuario, correo, contrasenia);
     return response;
   }
   
