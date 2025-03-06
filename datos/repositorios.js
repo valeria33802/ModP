@@ -141,9 +141,6 @@ const sp_historial_compra_ultimo_usuario = async () => {
   }
 };
 
-
-
-
 async function sp_modificar_empleado(id, ncorreo, ncontrasenia, npuesto, nnombre, napellido, nhorario) {
   try {
     
@@ -189,6 +186,52 @@ const ejecutar_vista_calificaciones = async () => {
   }
 };
 
+async function sp_insert_codigo(codigo, tiempocreacion, tiempovencimiento) {
+  try {
+    
+    const [result] = await pool.query('CALL sp_insert_codigo(?, ?, ?)', [codigo, tiempocreacion, tiempovencimiento]);
+    const data = result[0];
+    return data;
+  } catch (error) {
+    console.error('Error al modificar empleado', error);
+    throw error;
+  }
+}
+
+async function sp_cambio_contrasenia(npass) {
+  try {
+    
+    const [result] = await pool.query('CALL sp_cambio_contrasenia(?)', [npass]);
+    const data = result[0];
+    return data;
+  } catch (error) {
+    console.error('Error al modificar empleado', error);
+    throw error;
+  }
+}
+
+const sp_obtener_correo_usuario = async () => {
+  try {
+      const [rows] = await pool.query('CALL sp_obtener_correo_usuario()');
+      return rows;
+  } catch (error) {
+      console.error('Error al obtener usuario:', error);
+      throw error;
+  }
+};
+
+async function sp_validar_codigo(codigo) {
+  try {
+    
+    const [result] = await pool.query('CALL sp_validar_codigo(?)', [codigo]);
+    const data = result[0];
+    return data;
+  } catch (error) {
+    console.error('Error al modificar empleado', error);
+    throw error;
+  }
+}
+
 
   module.exports = {
     obtenerperifericos,
@@ -204,5 +247,9 @@ const ejecutar_vista_calificaciones = async () => {
     sp_generar_info_ultimo_comprador, 
     sp_historial_compra_ultimo_usuario,
     ejecutar_vista_faq,
-    ejecutar_vista_calificaciones
+    ejecutar_vista_calificaciones,
+    sp_insert_codigo,
+    sp_obtener_correo_usuario,
+    sp_cambio_contrasenia,
+    sp_validar_codigo
 };

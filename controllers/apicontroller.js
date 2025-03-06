@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const servicios = require('../negocios/servicios'); //
-
+const transporter = require('../frontend/confignodemailer');
+const pool = require('../datos/configdb');
+const speakeasy = require('speakeasy');
 
 // Endpoint para login
 router.post('/login', async (req, res) => {
@@ -209,5 +211,134 @@ router.get('/calificaciones', async (req, res) => {
   }
 });
 
+
+router.post('/insertarcodigo', async (req, res) => {
+  try {
+    const {codigo, tiempocreacion, tiempovencimiento } = req.body;
+    const response = await servicios.sp_insert_codigoService(codigo, tiempocreacion, tiempovencimiento);
+    res.json(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+router.post('/cambiocontrasenia', async (req, res) => {
+  try {
+    const {npass} = req.body;
+    const response = await servicios.sp_cambio_contraseniaService(npass);
+    res.json(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/obtenercorreo', async (req, res) => {
+  try {
+    const perifericos = await servicios.sp_obtener_correo_usuarioService();
+    res.json(perifericos);
+  } catch (error) {
+    console.error('Error en /perifericos:', error);
+    res.status(500).json({ error: 'Error al obtener los periféricos' });
+  }
+});
+
+// Endpoint GET o POST, según prefieras
+router.get('/generarcodigo', async (req, res) => {
+  try {
+    // 1) Llamar a la función que genera el TOTP y lo inserta en BD
+    const token = await servicios.generarCodigoTOTP();
+
+    // 2) Responder con éxito
+    res.json({ success: true, codigo: token });
+  } catch (error) {
+    console.error('Error generando código:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+
+//api para obtener correo del usuario
+
+router.post('/enviar-codigo-recuperacion', async (req, res) => {
+  try {
+    // 1. Obtener el correo del último usuario logueado mediante SP
+    const [rowsCorreo] = await pool.query('CALL sp_obtener_correo_usuario()');
+    const emailUsuario = rowsCorreo[0] && rowsCorreo[0][0] && rowsCorreo[0][0].US_Correo;
+    if (!emailUsuario) {
+      return res.status(400).json({ success: false, error: 'No se encontró un correo para el último usuario logueado.' });
+    }
+
+    // 2. Generar el código. Usamos speakeasy para un TOTP de 6 dígitos.
+    const secret = speakeasy.generateSecret({ length: 10 });
+    const code = speakeasy.totp({
+      secret: secret.base32,
+      encoding: 'base32'
+    });
+
+    // 3. Calcular tiempos: ahora y vencimiento (+5 minutos)
+    const ahora = new Date();
+    const vence = new Date(ahora.getTime() + 5 * 60 * 1000);
+
+    // 4. Insertar el código en la BD llamando al SP sp_insert_codigo
+    await pool.query('CALL sp_insert_codigo(?, ?, ?)', [code, ahora, vence]);
+
+    // 5. Enviar el código por correo (usando el transporter de nodemailer)
+    const mailOptions = {
+      from: '"MODP Soporte" <modp.noreply01@yahoo.com>',
+      to: emailUsuario,
+      subject: 'Código de recuperación de contraseña',
+      text: `Tu código de recuperación es: ${code}. Es válido por 5 minutos.`
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    // 6. Responder al frontend
+    res.json({ success: true, message: 'Código enviado a tu correo.' });
+  } catch (error) {
+    console.error('Error en /enviar-codigo-recuperacion:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+
+// api verificar el código
+router.post('/verificar-codigo-cambiar-pass', async (req, res) => {
+  try {
+    const { codigo, nuevaPassword } = req.body;
+
+    // 1) Buscar el código en la tabla "Codigo", ver si está activo, no vencido, etc.
+    const [rows] = await pool.query(`
+      SELECT *
+      FROM Codigo
+      WHERE codigo = ?
+        AND estado = 'A'
+        AND NOW() < tiempo_vencimiento
+      ORDER BY tiempo_creacion DESC
+      LIMIT 1
+    `, [codigo]);
+
+    if (!rows.length) {
+      // Código no encontrado o expirado
+      return res.json({ success: false, error: 'Código inválido o expirado.' });
+    }
+
+    // 2) Si es válido, llamamos al SP que cambia la contraseña en la tabla Usuarios
+    await pool.query('CALL sp_cambio_contrasenia(?)', [nuevaPassword]);
+    
+    
+    const codigoId = rows[0].id; 
+    await pool.query(`
+      UPDATE Codigo SET estado = 'U'
+      WHERE id = ?
+    `, [codigoId]);
+
+    // 4) Responder éxito
+    return res.json({ success: true });
+  } catch (error) {
+    console.error('Error en /verificar-codigo-cambiar-pass:', error);
+    return res.json({ success: false, error: error.message });
+  }
+});
 
 module.exports = router;

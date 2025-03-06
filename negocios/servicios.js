@@ -1,5 +1,5 @@
 const { ejecutar_vista_faq } = require('../datos/repositorios');
-
+// const speakeasy = require('speakeasy');
 // negocios/servicios.js
 const {
     loginUser,
@@ -14,9 +14,43 @@ const {
     sp_filtrar_servicios,
     sp_generar_info_ultimo_comprador,
     sp_historial_compra_ultimo_usuario,
-    ejecutar_vista_calificaciones
+    ejecutar_vista_calificaciones,
+    sp_cambio_contrasenia,
+    sp_insert_codigo,
+    sp_obtener_correo_usuario,
+    sp_validar_codigo
  
   } = repositorios = require('../datos/repositorios'); 
+
+  // // funcion para generar códigos
+
+  // async function generarCodigoTOTP() {
+  //   try {
+  //     // Genera un secret de manera temporal 
+  //     const secret = speakeasy.generateSecret({ length: 10 });
+      
+  //     // Genera un token TOTP de 6 dígitos utilizando el secret
+  //     const token = speakeasy.totp({
+  //       secret: secret.base32,
+  //       encoding: 'base32'
+  //     });
+      
+  //     // Calcula la fecha de creación y la fecha de expiración (5 minutos de vigencia)
+  //     const ahora = new Date();
+  //     const vence = new Date(ahora.getTime() + 5 * 60000);
+      
+  //     // Llama al SP para insertar el código en la tabla Codigo
+  //     // Nota: No se pasa userId porque el SP lo obtiene del último login
+  //     await pool.query('CALL sp_insert_codigo(?, ?, ?)', [token, ahora, vence]);
+      
+  //     // Devuelve el token generado
+  //     return token;
+  //   } catch (error) {
+  //     console.error('Error al generar e insertar el token:', error);
+  //     throw error;
+  //   }
+  // }
+  
   
   // Función de negocio para el login
   async function loginService(nombreusuario, contrasenia) {
@@ -122,6 +156,32 @@ const vistacalificacionesService = async () => {
   }
 };
 
+// Función para cambiar contraseña
+async function sp_cambio_contraseniaService(npass) {
+  const response = await sp_cambio_contrasenia(npass);
+  return response;
+}
+
+async function sp_insert_codigoService(codigo, tiempocreacion, tiempovencimiento) {
+  const response = await sp_insert_codigo(codigo, tiempocreacion, tiempovencimiento);
+  return response;
+}
+
+const sp_obtener_correo_usuarioService = async () => {
+  try {
+      const [rows] = await sp_obtener_correo_usuario();
+      return rows; // Devolver solo los datos obtenidos
+  } catch (error) {
+      console.error('Error al obtener correo:', error);
+      throw error;
+  }
+};
+
+async function sp_validar_codigoService(codigo) {
+  const response = await sp_validar_codigo(codigo);
+  return response;
+}
+
   
   module.exports = {
     loginService,
@@ -137,6 +197,11 @@ const vistacalificacionesService = async () => {
     obtenerCompradorLoginService,
     historial_compra_ultimo_usuarioService,
     vistaFAQService,
-    vistacalificacionesService
+    vistacalificacionesService,
+    sp_cambio_contraseniaService,
+    sp_insert_codigoService,
+    sp_obtener_correo_usuarioService,
+    sp_validar_codigoService,
+    //generarCodigoTOTP
   };
   
