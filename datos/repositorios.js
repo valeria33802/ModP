@@ -28,7 +28,7 @@ async function loginUser(nombreusuario, contrasenia) {
   async function sp_InsertarComprador(nombreusuario, correo, contrasenia, pais, provincia, canton, distrito) {
     try {
       
-      const [result] = await pool.query('CALL sp_insert_comprador(?, ?, ?)', [nombreusuario, correo, contrasenia, pais, provincia, canton, distrito]);
+      const [result] = await pool.query('CALL sp_insert_comprador(?, ?, ?, ?, ?, ?, ?)', [nombreusuario, correo, contrasenia, pais, provincia, canton, distrito]);
       const data = result[0];
       return data;
     } catch (error) {
