@@ -18,7 +18,8 @@ const {
     sp_cambio_contrasenia,
     sp_insert_codigo,
     sp_obtener_correo_usuario,
-    sp_validar_codigo
+    sp_validar_codigo, 
+    getUbicaciones
  
   } = repositorios = require('../datos/repositorios'); 
 
@@ -60,8 +61,8 @@ const {
   }
   
   // Función para insertar comprador
-  async function insertarCompradorService(nombreusuario, correo, contrasenia) {
-    const response = await sp_InsertarComprador(nombreusuario, correo, contrasenia);
+  async function insertarCompradorService(nombreusuario, correo, contrasenia, pais, provincia, canton, distrito) {
+    const response = await sp_InsertarComprador(nombreusuario, correo, contrasenia, pais, provincia, canton, distrito);
     return response;
   }
   
@@ -182,6 +183,16 @@ async function sp_validar_codigoService(codigo) {
   return response;
 }
 
+async function obtenerUbicacionesService() {
+  try {
+    const data = await getUbicaciones();
+    
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
   
   module.exports = {
     loginService,
@@ -202,6 +213,7 @@ async function sp_validar_codigoService(codigo) {
     sp_insert_codigoService,
     sp_obtener_correo_usuarioService,
     sp_validar_codigoService,
+    obtenerUbicacionesService
     //generarCodigoTOTP
   };
   

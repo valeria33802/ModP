@@ -33,8 +33,8 @@ router.post('/login', async (req, res) => {
 // Endpoint para insertar comprador
 router.post('/insertarcomprador', async (req, res) => {
   try {
-    const {nombreusuario, correo, contrasenia } = req.body;
-    const response = await servicios.insertarCompradorService(nombreusuario, correo, contrasenia);
+    const {nombreusuario, correo, contrasenia, pais, provincia, canton, distrito } = req.body;
+    const response = await servicios.insertarCompradorService(nombreusuario, correo, contrasenia, pais, provincia, canton, distrito);
     res.json(response);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -243,19 +243,19 @@ router.get('/obtenercorreo', async (req, res) => {
   }
 });
 
-// Endpoint GET o POST, según prefieras
-router.get('/generarcodigo', async (req, res) => {
-  try {
-    // 1) Llamar a la función que genera el TOTP y lo inserta en BD
-    const token = await servicios.generarCodigoTOTP();
+// // Endpoint GET o POST, según prefieras
+// router.get('/generarcodigo', async (req, res) => {
+//   try {
+//     // 1) Llamar a la función que genera el TOTP y lo inserta en BD
+//     const token = await servicios.generarCodigoTOTP();
 
-    // 2) Responder con éxito
-    res.json({ success: true, codigo: token });
-  } catch (error) {
-    console.error('Error generando código:', error);
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
+//     // 2) Responder con éxito
+//     res.json({ success: true, codigo: token });
+//   } catch (error) {
+//     console.error('Error generando código:', error);
+//     res.status(500).json({ success: false, error: error.message });
+//   }
+// });
 
 
 //api para obtener correo del usuario
@@ -285,7 +285,7 @@ router.post('/enviar-codigo-recuperacion', async (req, res) => {
 
     // 5. Enviar el código por correo (usando el transporter de nodemailer)
     const mailOptions = {
-      from: '"MODP Soporte" <modp.noreply01@yahoo.com>',
+      from: '"MODP Soporte" <modp.noreply01@gmail.com>',
       to: emailUsuario,
       subject: 'Código de recuperación de contraseña',
       text: `Tu código de recuperación es: ${code}. Es válido por 5 minutos.`
@@ -338,6 +338,18 @@ router.post('/verificar-codigo-cambiar-pass', async (req, res) => {
   } catch (error) {
     console.error('Error en /verificar-codigo-cambiar-pass:', error);
     return res.json({ success: false, error: error.message });
+  }
+});
+
+router.get('/ubicaciones', async (req, res) => {
+  try {
+    const ubicaciones = await servicios.obtenerUbicacionesService();
+    // Si es necesario, parsea el resultado:
+    // res.json({ success: true, ubicaciones: JSON.parse(ubicaciones) });
+    res.json({ success: true, ubicaciones });
+  } catch (error) {
+    console.error('Error en /ubicaciones:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 

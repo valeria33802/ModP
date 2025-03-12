@@ -25,10 +25,10 @@ async function loginUser(nombreusuario, contrasenia) {
     }
   }
 
-  async function sp_InsertarComprador(nombreusuario, correo, contrasenia) {
+  async function sp_InsertarComprador(nombreusuario, correo, contrasenia, pais, provincia, canton, distrito) {
     try {
       
-      const [result] = await pool.query('CALL sp_insert_comprador(?, ?, ?)', [nombreusuario, correo, contrasenia]);
+      const [result] = await pool.query('CALL sp_insert_comprador(?, ?, ?)', [nombreusuario, correo, contrasenia, pais, provincia, canton, distrito]);
       const data = result[0];
       return data;
     } catch (error) {
@@ -232,6 +232,16 @@ async function sp_validar_codigo(codigo) {
   }
 }
 
+async function getUbicaciones() {
+  try {
+    const [rows] = await pool.query('CALL sp_get_ubicaciones()');
+    // rows[0] suele ser un array con una única fila, donde la propiedad "ubicaciones" contiene el JSON
+    const result = rows[0][0].ubicaciones;
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
 
   module.exports = {
     obtenerperifericos,
@@ -251,5 +261,6 @@ async function sp_validar_codigo(codigo) {
     sp_insert_codigo,
     sp_obtener_correo_usuario,
     sp_cambio_contrasenia,
-    sp_validar_codigo
+    sp_validar_codigo, 
+    getUbicaciones
 };

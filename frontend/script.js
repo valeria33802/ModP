@@ -308,103 +308,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 });
 
 
-// validar tamaño de la contraseña e insert
-
-document.addEventListener('DOMContentLoaded', function () {
-  if (window.location.pathname.includes("registro.html")) {
-    // Elementos
-    const crearCuentaForm = document.getElementById('crearCuentaForm');
-    const nombreusuarioField = document.getElementById('nombreusuario');
-    const correoField = document.getElementById('correo');
-    const passwordField = document.getElementById('password');
-    const confirmPasswordField = document.getElementById('confirmPassword');
-    const mensajeError = document.getElementById('mensajeError');
-    const passwordProgress = document.getElementById('passwordProgress');
-
-    // Función para chequear fuerza de contraseña
-    function checkPasswordStrength(password) {
-      let score = 0;
-      if (password.length >= 14) score++;
-      if (/[A-Z]/.test(password)) score++;
-      if (/[a-z]/.test(password)) score++;
-      if (/\d/.test(password)) score++;
-      if (/[!@#$%^&*()_\-+={}\[\]|\\:;"'<>,.?/`~]/.test(password)) score++;
-      return score;
-    }
-
-    // Actualizar barra de progreso a medida que se escribe en la contraseña
-    passwordField.addEventListener('input', function () {
-      const pwdValue = passwordField.value;
-      const score = checkPasswordStrength(pwdValue);
-      const percentage = (score / 5) * 100; // 0, 20, 40, 60, 80, 100
-
-      passwordProgress.style.width = percentage + '%';
-      passwordProgress.setAttribute('aria-valuenow', percentage);
-
-      // Actualizar clases según el score
-      passwordProgress.classList.remove('bg-danger', 'bg-warning', 'bg-success');
-      if (score <= 2) {
-        passwordProgress.classList.add('bg-danger');
-      } else if (score === 3) {
-        passwordProgress.classList.add('bg-warning');
-      } else {
-        passwordProgress.classList.add('bg-success');
-      }
-    });
-
-    // Manejo del Submit del formulario de registro
-    crearCuentaForm.addEventListener('submit', async function (e) {
-      e.preventDefault(); // Evita el envío tradicional del formulario
-
-      // Ocultar mensaje de error anterior
-      mensajeError.style.display = 'none';
-
-      // Obtener valores
-      const nombreusuario = nombreusuarioField.value.trim();
-      const correo = correoField.value.trim();
-      const password = passwordField.value;
-      const confirmPassword = confirmPasswordField.value;
-
-      // Validar que ambas contraseñas coincidan
-      if (password !== confirmPassword) {
-        mensajeError.innerText = 'Las contraseñas no coinciden.';
-        mensajeError.style.display = 'block';
-        return;
-      }
-
-      // Chequear fuerza mínima de la contraseña
-      const score = checkPasswordStrength(password);
-      if (score < 5) {
-        mensajeError.innerText = 'La contraseña no cumple todos los requisitos de seguridad.';
-        mensajeError.style.display = 'block';
-        return;
-      }
-
-      try {
-        // Llamar al endpoint para crear la cuenta
-        const response = await axios.post('http://localhost:3300/api/insertarcomprador', {
-          nombreusuario,
-          correo,
-          contrasenia: password
-        });
-
-        console.log('Respuesta del servidor:', response.data);
-        alert('Cuenta creada exitosamente');
-        // Puedes redireccionar a otra página si lo deseas:
-        // window.location.href = 'inicio.html';
-      } catch (error) {
-        console.error('Error al crear cuenta:', error);
-        if (error.response && error.response.data && error.response.data.error) {
-          mensajeError.innerText = error.response.data.error;
-        } else {
-          mensajeError.innerText = 'Error al crear la cuenta.';
-        }
-        mensajeError.style.display = 'block';
-      }
-    });
-  }
-});
-
 ///validar la cantidad de caracteres en recuperar contraseña
 document.addEventListener('DOMContentLoaded', function () {
   if (window.location.pathname.includes("recuperarcontrasenia.html")) {
@@ -476,7 +379,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 });
-
 
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -559,6 +461,214 @@ document.addEventListener('DOMContentLoaded', function () {
           : error.message;
         console.error("Error al verificar el código:", errorMsg);
         alert("Error al verificar el código:\n" + errorMsg);
+      }
+    });
+  }
+});
+
+
+// validar tamaño de la contraseña e insert
+
+document.addEventListener('DOMContentLoaded', async function () {
+  // Verificar si estamos en la página de "registro.html"
+  if (window.location.pathname.includes("registro.html")) {
+    // Referencias a los campos del formulario
+    const crearCuentaForm = document.getElementById('crearCuentaForm');
+    const nombreusuarioField = document.getElementById('nombreusuario');
+    const correoField = document.getElementById('correo');
+    const passwordField = document.getElementById('password');
+    const confirmPasswordField = document.getElementById('confirmPassword');
+    const mensajeError = document.getElementById('mensajeError');
+    const passwordProgress = document.getElementById('passwordProgress');
+
+    // Referencias a los dropdowns
+    const paisSelect = document.getElementById('pais');
+    const provinciaSelect = document.getElementById('provincia');
+    const cantonSelect = document.getElementById('canton');
+    const distritoSelect = document.getElementById('distrito');
+
+    // Variable global para guardar la estructura completa de ubicaciones
+    let ubicacionesData = [];
+
+    // 1. Al cargar la página, obtener la estructura JSON de ubicaciones desde el API.
+    try {
+      const resp = await axios.get('http://localhost:3300/api/ubicaciones'); 
+      if (resp.data.success && resp.data.ubicaciones) {
+        ubicacionesData = resp.data.ubicaciones; // Guardamos la data globalmente
+        llenarPaises(ubicacionesData);
+      } else {
+        console.error("No se pudo cargar la data de ubicaciones");
+      }
+    } catch (error) {
+      console.error("Error cargando ubicaciones:", error);
+    }
+
+    // Función para llenar el dropdown de países
+    function llenarPaises(paises) {
+      paises.forEach((p) => {
+        const option = document.createElement('option');
+        option.value = p.id;       // El código del país
+        option.textContent = p.nombre;
+        paisSelect.appendChild(option);
+      });
+    }
+
+    // 2. Al seleccionar un país, llenar el dropdown de provincias
+    paisSelect.addEventListener('change', function () {
+      // Reiniciar dropdowns inferiores
+      provinciaSelect.innerHTML = '<option value="">Seleccione una provincia</option>';
+      cantonSelect.innerHTML = '<option value="">Seleccione un cantón</option>';
+      distritoSelect.innerHTML = '<option value="">Seleccione un distrito</option>';
+
+      const selectedPaisId = paisSelect.value;
+      if (!selectedPaisId) return;
+
+      // Buscar el país seleccionado en la estructura global
+      const paisSeleccionado = ubicacionesData.find(item => item.id == selectedPaisId);
+      if (paisSeleccionado && paisSeleccionado.provincias) {
+        paisSeleccionado.provincias.forEach(prov => {
+          const option = document.createElement('option');
+          option.value = prov.id;  // Código de la provincia
+          option.textContent = prov.nombre;
+          provinciaSelect.appendChild(option);
+        });
+      }
+    });
+
+    // 3. Al seleccionar una provincia, llenar el dropdown de cantones
+    provinciaSelect.addEventListener('change', function () {
+      cantonSelect.innerHTML = '<option value="">Seleccione un cantón</option>';
+      distritoSelect.innerHTML = '<option value="">Seleccione un distrito</option>';
+
+      const selectedPaisId = paisSelect.value;
+      const selectedProvinciaId = provinciaSelect.value;
+      if (!selectedProvinciaId) return;
+
+      // Buscar el país y luego la provincia en la estructura global
+      const paisSeleccionado = ubicacionesData.find(item => item.id == selectedPaisId);
+      if (paisSeleccionado && paisSeleccionado.provincias) {
+        const provinciaSeleccionada = paisSeleccionado.provincias.find(prov => prov.id == selectedProvinciaId);
+        if (provinciaSeleccionada && provinciaSeleccionada.cantones) {
+          provinciaSeleccionada.cantones.forEach(cant => {
+            const option = document.createElement('option');
+            option.value = cant.id; // Código del cantón
+            option.textContent = cant.nombre;
+            cantonSelect.appendChild(option);
+          });
+        }
+      }
+    });
+
+    // 4. Al seleccionar un cantón, llenar el dropdown de distritos
+    cantonSelect.addEventListener('change', function () {
+      distritoSelect.innerHTML = '<option value="">Seleccione un distrito</option>';
+
+      const selectedPaisId = paisSelect.value;
+      const selectedProvinciaId = provinciaSelect.value;
+      const selectedCantonId = cantonSelect.value;
+      if (!selectedCantonId) return;
+
+      const paisSeleccionado = ubicacionesData.find(item => item.id == selectedPaisId);
+      if (paisSeleccionado && paisSeleccionado.provincias) {
+        const provinciaSeleccionada = paisSeleccionado.provincias.find(prov => prov.id == selectedProvinciaId);
+        if (provinciaSeleccionada && provinciaSeleccionada.cantones) {
+          const cantonSeleccionado = provinciaSeleccionada.cantones.find(cant => cant.id == selectedCantonId);
+          if (cantonSeleccionado && cantonSeleccionado.distritos) {
+            cantonSeleccionado.distritos.forEach(dist => {
+              const option = document.createElement('option');
+              option.value = dist.id;  // Código del distrito
+              option.textContent = dist.nombre;
+              distritoSelect.appendChild(option);
+            });
+          }
+        }
+      }
+    });
+
+    // Función para chequear la fuerza de la contraseña
+    function checkPasswordStrength(password) {
+      let score = 0;
+      if (password.length >= 14) score++;
+      if (/[A-Z]/.test(password)) score++;
+      if (/[a-z]/.test(password)) score++;
+      if (/\d/.test(password)) score++;
+      if (/[!@#$%^&*()_\-+={}\[\]|\\:;"'<>,.?/`~]/.test(password)) score++;
+      return score;
+    }
+
+    // Actualizar la barra de progreso de la contraseña
+    passwordField.addEventListener('input', function () {
+      const pwdValue = passwordField.value;
+      const score = checkPasswordStrength(pwdValue);
+      const percentage = (score / 5) * 100;
+      passwordProgress.style.width = percentage + '%';
+      passwordProgress.setAttribute('aria-valuenow', percentage);
+
+      passwordProgress.classList.remove('bg-danger', 'bg-warning', 'bg-success');
+      if (score <= 2) {
+        passwordProgress.classList.add('bg-danger');
+      } else if (score === 3) {
+        passwordProgress.classList.add('bg-warning');
+      } else {
+        passwordProgress.classList.add('bg-success');
+      }
+    });
+
+    // 5. Enviar el formulario: recoger usuario, correo, contraseña y códigos seleccionados
+    crearCuentaForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      mensajeError.style.display = 'none';
+
+      const nombreusuario = nombreusuarioField.value.trim();
+      const correo = correoField.value.trim();
+      const password = passwordField.value;
+      const confirmPassword = confirmPasswordField.value;
+
+      // Obtener los códigos seleccionados de cada dropdown
+      const pais = paisSelect.value;          // Código del país
+      const provincia = provinciaSelect.value;  // Código de la provincia
+      const canton = cantonSelect.value;        // Código del cantón
+      const distrito = distritoSelect.value;    // Código del distrito
+
+      // Validar que las contraseñas coincidan
+      if (password !== confirmPassword) {
+        mensajeError.innerText = 'Las contraseñas no coinciden.';
+        mensajeError.style.display = 'block';
+        return;
+      }
+
+      // Chequear que la contraseña cumpla con los requisitos mínimos
+      const score = checkPasswordStrength(password);
+      if (score < 5) {
+        mensajeError.innerText = 'La contraseña no cumple los requisitos de seguridad.';
+        mensajeError.style.display = 'block';
+        return;
+      }
+
+      try {
+        // Enviar los datos al endpoint para insertar el comprador, incluyendo los códigos de ubicación.
+        const response = await axios.post('http://localhost:3300/api/insertarcomprador', {
+          nombreusuario,
+          correo,
+          contrasenia: password,
+          pais,        // Código del país
+          provincia,   // Código de la provincia
+          canton,      // Código del cantón
+          distrito     // Código del distrito
+        });
+
+        console.log('Respuesta del servidor:', response.data);
+        alert('Cuenta creada exitosamente');
+        // Opcional: redireccionar a otra página
+        // window.location.href = 'inicio.html';
+      } catch (error) {
+        console.error('Error al crear cuenta:', error);
+        if (error.response && error.response.data && error.response.data.error) {
+          mensajeError.innerText = error.response.data.error;
+        } else {
+          mensajeError.innerText = 'Error al crear la cuenta.';
+        }
+        mensajeError.style.display = 'block';
       }
     });
   }
