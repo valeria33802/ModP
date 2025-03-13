@@ -469,207 +469,215 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // validar tamaño de la contraseña e insert
 
-document.addEventListener('DOMContentLoaded', async function () {
-  // Verificar si estamos en la página de "registro.html"
+$(document).ready(function() {
+  // Verificamos si estamos en la página de "registro.html"
   if (window.location.pathname.includes("registro.html")) {
     // Referencias a los campos del formulario
-    const crearCuentaForm = document.getElementById('crearCuentaForm');
-    const nombreusuarioField = document.getElementById('nombreusuario');
-    const correoField = document.getElementById('correo');
-    const passwordField = document.getElementById('password');
-    const confirmPasswordField = document.getElementById('confirmPassword');
-    const mensajeError = document.getElementById('mensajeError');
-    const passwordProgress = document.getElementById('passwordProgress');
+    var crearCuentaForm = $('#crearCuentaForm');
+    var nombreusuarioField = $('#nombreusuario');
+    var correoField = $('#correo');
+    var passwordField = $('#password');
+    var confirmPasswordField = $('#confirmPassword');
+    var mensajeError = $('#mensajeError');
+    var passwordProgress = $('#passwordProgress');
 
     // Referencias a los dropdowns
-    const paisSelect = document.getElementById('pais');
-    const provinciaSelect = document.getElementById('provincia');
-    const cantonSelect = document.getElementById('canton');
-    const distritoSelect = document.getElementById('distrito');
+    var paisSelect = $('#pais');
+    var provinciaSelect = $('#provincia');
+    var cantonSelect = $('#canton');
+    var distritoSelect = $('#distrito');
 
-    // Variable global para guardar la estructura completa de ubicaciones
-    let ubicacionesData = [];
+    // Variable global para almacenar la estructura completa de ubicaciones
+    var ubicacionesData = [];
 
-    // 1. Al cargar la página, obtener la estructura JSON de ubicaciones desde el API.
-    try {
-      const resp = await axios.get('http://localhost:3300/api/ubicaciones'); 
-      if (resp.data.success && resp.data.ubicaciones) {
-        ubicacionesData = resp.data.ubicaciones; // Guardamos la data globalmente
-        llenarPaises(ubicacionesData);
-      } else {
-        console.error("No se pudo cargar la data de ubicaciones");
+    // 1. Obtener la estructura JSON con todas las ubicaciones mediante AJAX
+    $.ajax({
+      url: 'http://localhost:3300/api/ubicaciones',
+      type: 'GET',
+      dataType: 'json',
+      success: function(resp) {
+        if(resp.success && resp.ubicaciones) {
+          ubicacionesData = resp.ubicaciones; // Guardamos la data globalmente
+          llenarPaises(ubicacionesData);
+        } else {
+          console.error("No se pudo cargar la data de ubicaciones");
+        }
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.error("Error cargando ubicaciones: " + textStatus, errorThrown);
       }
-    } catch (error) {
-      console.error("Error cargando ubicaciones:", error);
-    }
+    });
 
     // Función para llenar el dropdown de países
     function llenarPaises(paises) {
-      paises.forEach((p) => {
-        const option = document.createElement('option');
-        option.value = p.id;       // El código del país
-        option.textContent = p.nombre;
-        paisSelect.appendChild(option);
+      $.each(paises, function(i, p) {
+        var option = $('<option>').val(p.id).text(p.nombre);
+        paisSelect.append(option);
       });
     }
 
-    // 2. Al seleccionar un país, llenar el dropdown de provincias
-    paisSelect.addEventListener('change', function () {
-      // Reiniciar dropdowns inferiores
-      provinciaSelect.innerHTML = '<option value="">Seleccione una provincia</option>';
-      cantonSelect.innerHTML = '<option value="">Seleccione un cantón</option>';
-      distritoSelect.innerHTML = '<option value="">Seleccione un distrito</option>';
+    // 2. Al cambiar el país, llenar el dropdown de provincias
+    paisSelect.on('change', function() {
+      provinciaSelect.empty().append($('<option>').val('').text('Seleccione una provincia'));
+      cantonSelect.empty().append($('<option>').val('').text('Seleccione un cantón'));
+      distritoSelect.empty().append($('<option>').val('').text('Seleccione un distrito'));
 
-      const selectedPaisId = paisSelect.value;
-      if (!selectedPaisId) return;
+      var selectedPaisId = paisSelect.val();
+      if(!selectedPaisId) return;
 
-      // Buscar el país seleccionado en la estructura global
-      const paisSeleccionado = ubicacionesData.find(item => item.id == selectedPaisId);
-      if (paisSeleccionado && paisSeleccionado.provincias) {
-        paisSeleccionado.provincias.forEach(prov => {
-          const option = document.createElement('option');
-          option.value = prov.id;  // Código de la provincia
-          option.textContent = prov.nombre;
-          provinciaSelect.appendChild(option);
+      var paisSeleccionado = ubicacionesData.find(function(item) {
+        return item.id == selectedPaisId;
+      });
+      if(paisSeleccionado && paisSeleccionado.provincias) {
+        $.each(paisSeleccionado.provincias, function(i, prov) {
+          var option = $('<option>').val(prov.id).text(prov.nombre);
+          provinciaSelect.append(option);
         });
       }
     });
 
-    // 3. Al seleccionar una provincia, llenar el dropdown de cantones
-    provinciaSelect.addEventListener('change', function () {
-      cantonSelect.innerHTML = '<option value="">Seleccione un cantón</option>';
-      distritoSelect.innerHTML = '<option value="">Seleccione un distrito</option>';
+    // 3. Al cambiar la provincia, llenar el dropdown de cantones
+    provinciaSelect.on('change', function() {
+      cantonSelect.empty().append($('<option>').val('').text('Seleccione un cantón'));
+      distritoSelect.empty().append($('<option>').val('').text('Seleccione un distrito'));
 
-      const selectedPaisId = paisSelect.value;
-      const selectedProvinciaId = provinciaSelect.value;
-      if (!selectedProvinciaId) return;
+      var selectedPaisId = paisSelect.val();
+      var selectedProvinciaId = provinciaSelect.val();
+      if(!selectedProvinciaId) return;
 
-      // Buscar el país y luego la provincia en la estructura global
-      const paisSeleccionado = ubicacionesData.find(item => item.id == selectedPaisId);
-      if (paisSeleccionado && paisSeleccionado.provincias) {
-        const provinciaSeleccionada = paisSeleccionado.provincias.find(prov => prov.id == selectedProvinciaId);
-        if (provinciaSeleccionada && provinciaSeleccionada.cantones) {
-          provinciaSeleccionada.cantones.forEach(cant => {
-            const option = document.createElement('option');
-            option.value = cant.id; // Código del cantón
-            option.textContent = cant.nombre;
-            cantonSelect.appendChild(option);
+      var paisSeleccionado = ubicacionesData.find(function(item) {
+        return item.id == selectedPaisId;
+      });
+      if(paisSeleccionado && paisSeleccionado.provincias) {
+        var provinciaSeleccionada = paisSeleccionado.provincias.find(function(prov) {
+          return prov.id == selectedProvinciaId;
+        });
+        if(provinciaSeleccionada && provinciaSeleccionada.cantones) {
+          $.each(provinciaSeleccionada.cantones, function(i, cant) {
+            var option = $('<option>').val(cant.id).text(cant.nombre);
+            cantonSelect.append(option);
           });
         }
       }
     });
 
-    // 4. Al seleccionar un cantón, llenar el dropdown de distritos
-    cantonSelect.addEventListener('change', function () {
-      distritoSelect.innerHTML = '<option value="">Seleccione un distrito</option>';
+    // 4. Al cambiar el cantón, llenar el dropdown de distritos
+    cantonSelect.on('change', function() {
+      distritoSelect.empty().append($('<option>').val('').text('Seleccione un distrito'));
 
-      const selectedPaisId = paisSelect.value;
-      const selectedProvinciaId = provinciaSelect.value;
-      const selectedCantonId = cantonSelect.value;
-      if (!selectedCantonId) return;
+      var selectedPaisId = paisSelect.val();
+      var selectedProvinciaId = provinciaSelect.val();
+      var selectedCantonId = cantonSelect.val();
+      if(!selectedCantonId) return;
 
-      const paisSeleccionado = ubicacionesData.find(item => item.id == selectedPaisId);
-      if (paisSeleccionado && paisSeleccionado.provincias) {
-        const provinciaSeleccionada = paisSeleccionado.provincias.find(prov => prov.id == selectedProvinciaId);
-        if (provinciaSeleccionada && provinciaSeleccionada.cantones) {
-          const cantonSeleccionado = provinciaSeleccionada.cantones.find(cant => cant.id == selectedCantonId);
-          if (cantonSeleccionado && cantonSeleccionado.distritos) {
-            cantonSeleccionado.distritos.forEach(dist => {
-              const option = document.createElement('option');
-              option.value = dist.id;  // Código del distrito
-              option.textContent = dist.nombre;
-              distritoSelect.appendChild(option);
+      var paisSeleccionado = ubicacionesData.find(function(item) {
+        return item.id == selectedPaisId;
+      });
+      if(paisSeleccionado && paisSeleccionado.provincias) {
+        var provinciaSeleccionada = paisSeleccionado.provincias.find(function(prov) {
+          return prov.id == selectedProvinciaId;
+        });
+        if(provinciaSeleccionada && provinciaSeleccionada.cantones) {
+          var cantonSeleccionado = provinciaSeleccionada.cantones.find(function(cant) {
+            return cant.id == selectedCantonId;
+          });
+          if(cantonSeleccionado && cantonSeleccionado.distritos) {
+            $.each(cantonSeleccionado.distritos, function(i, dist) {
+              var option = $('<option>').val(dist.id).text(dist.nombre);
+              distritoSelect.append(option);
             });
           }
         }
       }
     });
 
-    // Función para chequear la fuerza de la contraseña
+    // 5. Función para chequear la fuerza de la contraseña
     function checkPasswordStrength(password) {
-      let score = 0;
-      if (password.length >= 14) score++;
-      if (/[A-Z]/.test(password)) score++;
-      if (/[a-z]/.test(password)) score++;
-      if (/\d/.test(password)) score++;
-      if (/[!@#$%^&*()_\-+={}\[\]|\\:;"'<>,.?/`~]/.test(password)) score++;
+      var score = 0;
+      if(password.length >= 14) score++;
+      if(/[A-Z]/.test(password)) score++;
+      if(/[a-z]/.test(password)) score++;
+      if(/\d/.test(password)) score++;
+      if(/[!@#$%^&*()_\-+={}\[\]|\\:;"'<>,.?/`~]/.test(password)) score++;
       return score;
     }
 
-    // Actualizar la barra de progreso de la contraseña
-    passwordField.addEventListener('input', function () {
-      const pwdValue = passwordField.value;
-      const score = checkPasswordStrength(pwdValue);
-      const percentage = (score / 5) * 100;
-      passwordProgress.style.width = percentage + '%';
-      passwordProgress.setAttribute('aria-valuenow', percentage);
+    // Actualizar la barra de progreso a medida que se escribe la contraseña
+    passwordField.on('input', function() {
+      var pwdValue = passwordField.val();
+      var score = checkPasswordStrength(pwdValue);
+      var percentage = (score / 5) * 100;
+      passwordProgress.css('width', percentage + '%');
+      passwordProgress.attr('aria-valuenow', percentage);
 
-      passwordProgress.classList.remove('bg-danger', 'bg-warning', 'bg-success');
-      if (score <= 2) {
-        passwordProgress.classList.add('bg-danger');
-      } else if (score === 3) {
-        passwordProgress.classList.add('bg-warning');
+      passwordProgress.removeClass('bg-danger bg-warning bg-success');
+      if(score <= 2) {
+        passwordProgress.addClass('bg-danger');
+      } else if(score === 3) {
+        passwordProgress.addClass('bg-warning');
       } else {
-        passwordProgress.classList.add('bg-success');
+        passwordProgress.addClass('bg-success');
       }
     });
 
-    // 5. Enviar el formulario: recoger usuario, correo, contraseña y códigos seleccionados
-    crearCuentaForm.addEventListener('submit', async function (e) {
+    // 6. Enviar el formulario usando AJAX
+    crearCuentaForm.on('submit', function(e) {
       e.preventDefault();
-      mensajeError.style.display = 'none';
+      mensajeError.hide();
 
-      const nombreusuario = nombreusuarioField.value.trim();
-      const correo = correoField.value.trim();
-      const password = passwordField.value;
-      const confirmPassword = confirmPasswordField.value;
+      var nombreusuario = nombreusuarioField.val().trim();
+      var correo = correoField.val().trim();
+      var password = passwordField.val();
+      var confirmPassword = confirmPasswordField.val();
 
-      // Obtener los códigos seleccionados de cada dropdown
-      const pais = paisSelect.value;          // Código del país
-      const provincia = provinciaSelect.value;  // Código de la provincia
-      const canton = cantonSelect.value;        // Código del cantón
-      const distrito = distritoSelect.value;    // Código del distrito
+      // Recoger los valores seleccionados de los dropdowns (se envían los IDs)
+      var pais = paisSelect.val();
+      var provincia = provinciaSelect.val();
+      var canton = cantonSelect.val();
+      var distrito = distritoSelect.val();
 
       // Validar que las contraseñas coincidan
-      if (password !== confirmPassword) {
-        mensajeError.innerText = 'Las contraseñas no coinciden.';
-        mensajeError.style.display = 'block';
+      if(password !== confirmPassword) {
+        mensajeError.text('Las contraseñas no coinciden.').show();
         return;
       }
 
-      // Chequear que la contraseña cumpla con los requisitos mínimos
-      const score = checkPasswordStrength(password);
-      if (score < 5) {
-        mensajeError.innerText = 'La contraseña no cumple los requisitos de seguridad.';
-        mensajeError.style.display = 'block';
+      // Chequear la fuerza de la contraseña
+      var score = checkPasswordStrength(password);
+      if(score < 5) {
+        mensajeError.text('La contraseña no cumple los requisitos de seguridad.').show();
         return;
       }
 
-      try {
-        // Enviar los datos al endpoint para insertar el comprador, incluyendo los códigos de ubicación.
-        const response = await axios.post('http://localhost:3300/api/insertarcomprador', {
-          nombreusuario,
-          correo,
+      // Enviar los datos al endpoint para crear el comprador mediante AJAX POST
+      $.ajax({
+        url: 'http://localhost:3300/api/insertarcomprador',
+        type: 'POST',
+        data: JSON.stringify({
+          nombreusuario: nombreusuario,
+          correo: correo,
           contrasenia: password,
-          pais,        // Código del país
-          provincia,   // Código de la provincia
-          canton,      // Código del cantón
-          distrito     // Código del distrito
-        });
-
-        console.log('Respuesta del servidor:', response.data);
-        alert('Cuenta creada exitosamente');
-        // Opcional: redireccionar a otra página
-        // window.location.href = 'inicio.html';
-      } catch (error) {
-        console.error('Error al crear cuenta:', error);
-        if (error.response && error.response.data && error.response.data.error) {
-          mensajeError.innerText = error.response.data.error;
-        } else {
-          mensajeError.innerText = 'Error al crear la cuenta.';
+          pais: pais,
+          provincia: provincia,
+          canton: canton,
+          distrito: distrito
+        }),
+        contentType: 'application/json',
+        dataType: 'json',
+        success: function(resp) {
+          console.log('Respuesta del servidor:', resp);
+          if(resp.success) {
+            alert('Cuenta creada exitosamente');
+            
+          } else {
+            mensajeError.text(resp.error || 'Error al crear la cuenta.').show();
+          }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          console.error('Error al crear cuenta:', errorThrown);
+          mensajeError.text('Error al crear la cuenta: ' + errorThrown).show();
         }
-        mensajeError.style.display = 'block';
-      }
+      });
     });
   }
 });
