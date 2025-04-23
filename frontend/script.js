@@ -167,7 +167,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   if (window.location.pathname.includes("faq.html")) {
     try {
       // Hacer fetch al endpoint de FAQ
-      const response = await fetch("http://localhost:3300/api/faq");
+      // const response = await fetch("http://localhost:3300/api/faq");
+      const response = await fetch("http:/api/faq");
       const data = await response.json();
       console.log("FAQs recibidas:", data);
 
@@ -208,7 +209,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   if (window.location.pathname.includes("historial.html")) {
     try {
       // 1. Obtener los datos del historial desde el endpoint
-      const response = await fetch("http://localhost:3300/api/historialcomprador");
+      // const response = await fetch("http://localhost:3300/api/historialcomprador");
+      const response = await fetch("http:/api/historialcomprador");
       const data = await response.json();
       console.log("Historial de compras recibido:", data);
 
@@ -265,7 +267,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   if (window.location.pathname.includes("resenias.html")) {
     try {
       //api
-      const response = await fetch("http://localhost:3300/api/calificaciones");
+      // const response = await fetch("http://localhost:3300/api/calificaciones");
+      const response = await fetch("http:/api/calificaciones");
       const data = await response.json();
       console.log("Calificaciones recibidas:", data);
 

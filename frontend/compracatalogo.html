@@ -19,6 +19,8 @@
 
   <!-- Archivo CSS externo -->
   <link rel="stylesheet" href="media/style.css" />
+  <link rel="manifest" href="/manifest.json" />
+<meta name="theme-color" content="#FFFFFF" />
 </head>
 <body>
 
@@ -145,6 +147,15 @@
       */
     });
   </script>
-
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('SW registrado:', reg.scope))
+        .catch(err => console.error('SW fallo:', err));
+    });
+  }
+  </script>
+  
 </body>
 </html>

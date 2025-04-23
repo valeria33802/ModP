@@ -122,7 +122,7 @@ router.post('/proyecto', async (req, res) => {
       card_number,
       card_cvv,
       card_name,
-      card_expire
+      p_card_expire
     } = req.body;
 
     const [result] = await servicios.insertProyectoFinalService(
@@ -133,7 +133,7 @@ router.post('/proyecto', async (req, res) => {
       card_number,
       card_cvv,
       card_name,
-      card_expire  // fijarse que aquí coincida el nombre
+      p_card_expire  // fijarse que aquí coincida el nombre
     );
 
     
