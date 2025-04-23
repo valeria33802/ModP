@@ -1,0 +1,10 @@
+# ./mysql/Dockerfile
+FROM mysql:8.0
+
+ENV MYSQL_ROOT_PASSWORD=${DB_PASSWORD=xLpA976WaS.,l}
+ENV MYSQL_DATABASE=${MYSQL_DATABASE}  
+
+VOLUME ["/var/lib/mysql"]
+
+EXPOSE 3306
+
