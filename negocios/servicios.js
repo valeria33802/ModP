@@ -19,7 +19,7 @@ const {
     sp_insert_codigo,
     sp_obtener_correo_usuario,
     sp_validar_codigo, 
-    getUbicaciones
+
  
   } = repositorios = require('../datos/repositorios'); 
 
@@ -61,9 +61,17 @@ const {
   }
   
   // Función para insertar comprador
-  async function insertarCompradorService(nombreusuario, correo, contrasenia, pais, provincia, canton, distrito) {
-    const response = await sp_InsertarComprador(nombreusuario, correo, contrasenia, pais, provincia, canton, distrito);
-    return response;
+  // async function insertarCompradorService(nombreusuario, correo, contrasenia, nombre, apellido, direccion) {
+  //   const response = await sp_InsertarComprador(nombreusuario, correo, contrasenia, nombre, apellido, direccion);
+  //   return response;
+  // }
+
+  async function insertarCompradorService(
+    nombreusuario, correo, contrasenia, nombre, apellido, direccion
+  ) {
+    return await sp_InsertarComprador(
+      nombreusuario, correo, contrasenia, nombre, apellido, direccion
+    );
   }
   
   // Función para modificar comprador
@@ -91,9 +99,48 @@ const {
   }
   
   // Función para insertar proyecto final
-  async function insertProyectoFinalService(idarticulo, idcomprador, p_modificaciones) {
-    const response = await sp_insert_proyecto_final(idarticulo, idcomprador, p_modificaciones);
-    return response;
+  // async function insertProyectoFinalService(idarticulo, idcomprador, p_modificaciones) {
+  //   const response = await sp_insert_proyecto_final(idarticulo, idcomprador, p_modificaciones);
+  //   return response;
+  // }
+
+  // async function insertProyectoFinalService(
+  //   idarticulo,
+  //   art_price,
+  //   mod_price_sum,
+  //   modificacionesCSV
+  // ) {
+  //   // llama al repositorio que a su vez invoca tu SP nuevo
+  //   const [result] = await repositorios.sp_insert_proyecto_final(
+  //     idarticulo,
+  //     art_price,
+  //     mod_price_sum,
+  //     modificacionesCSV
+  //   );
+  //   return result;
+  // }
+
+  async function insertProyectoFinalService(
+    idarticulo,
+    art_price,
+    mod_price_sum,
+    modificaciones,
+    card_number,
+    card_cvv,
+    card_name,
+    card_expire
+  ) {
+    // devolvemos directamente lo que retorna el repositorio
+    return await sp_insert_proyecto_final(
+      idarticulo,
+      art_price,
+      mod_price_sum,
+      modificaciones,
+      card_number,
+      card_cvv,
+      card_name,
+      card_expire
+    );
   }
   
   // Función para sumar stock
@@ -214,6 +261,6 @@ async function obtenerUbicacionesService() {
     sp_obtener_correo_usuarioService,
     sp_validar_codigoService,
     obtenerUbicacionesService
-    //generarCodigoTOTP
+
   };
   

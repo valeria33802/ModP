@@ -1,5 +1,4 @@
 // manejo del form LOGIN
-
 document.addEventListener('DOMContentLoaded', function () {
   const loginForm = document.getElementById('loginForm');
 
@@ -136,7 +135,13 @@ document.addEventListener("DOMContentLoaded", async function () {
                         <p class="mb-1"><strong>Descripción:</strong> ${producto.Descripcion}</p>
                         <p class="mb-1"><strong>Precio:</strong> $${producto.Precio.toFixed(2)}</p>
                       </div>
-                      <button class="btn btn-primary btn-sm ms-3" onclick="window.location.href='carritocompras.html?nombre=${encodeURIComponent(producto.Nombre)}'">Comprar</button>
+                      <button class="btn btn-primary btn-sm ms-3" onclick="
+        window.location.href=
+          'carritocompras.html'
+          + '?nombre=${encodeURIComponent(producto.Nombre)}'
+          + '&idArticulo=${encodeURIComponent(producto.ID_Articulo)}'
+          + '&precio=${encodeURIComponent(producto.Precio)}'
+      ">Comprar</button>
 
                     </div>
                   </div>
@@ -470,214 +475,53 @@ document.addEventListener('DOMContentLoaded', function () {
 // validar tamaño de la contraseña e insert
 
 $(document).ready(function() {
-  // Verificamos si estamos en la página de "registro.html"
   if (window.location.pathname.includes("registro.html")) {
-    // Referencias a los campos del formulario
-    var crearCuentaForm = $('#crearCuentaForm');
-    var nombreusuarioField = $('#nombreusuario');
-    var correoField = $('#correo');
-    var passwordField = $('#password');
-    var confirmPasswordField = $('#confirmPassword');
-    var mensajeError = $('#mensajeError');
-    var passwordProgress = $('#passwordProgress');
+    const form = $('#crearCuentaForm');
+    const pwd = $('#password');
+    const confirm = $('#confirmPassword');
+    const errorBox = $('#mensajeError');
+    const progress = $('#passwordProgress');
 
-    // Referencias a los dropdowns
-    var paisSelect = $('#pais');
-    var provinciaSelect = $('#provincia');
-    var cantonSelect = $('#canton');
-    var distritoSelect = $('#distrito');
+    // Sólo validación cliente, sin AJAX
+    form.on('submit', function(e) {
+      errorBox.hide();
 
-    // Variable global para almacenar la estructura completa de ubicaciones
-    var ubicacionesData = [];
-
-    // 1. Obtener la estructura JSON con todas las ubicaciones mediante AJAX
-    $.ajax({
-      url: 'http://localhost:3300/api/ubicaciones',
-      type: 'GET',
-      dataType: 'json',
-      success: function(resp) {
-        if(resp.success && resp.ubicaciones) {
-          ubicacionesData = resp.ubicaciones; // Guardamos la data globalmente
-          llenarPaises(ubicacionesData);
-        } else {
-          console.error("No se pudo cargar la data de ubicaciones");
-        }
-      },
-      error: function(jqXHR, textStatus, errorThrown) {
-        console.error("Error cargando ubicaciones: " + textStatus, errorThrown);
+      // 1) Contraseñas coincidan
+      if (pwd.val() !== confirm.val()) {
+        e.preventDefault();
+        errorBox.text('Las contraseñas no coinciden.').show();
+        return;
       }
+
+      // 2) Fuerza de contraseña (ejemplo mínimo)
+      const strength = checkPasswordStrength(pwd.val());
+      if (strength < 5) {
+        e.preventDefault();
+        errorBox.text('La contraseña no cumple los requisitos.').show();
+        return;
+      }
+      // Si pasa validaciones, deja que el formulario se envíe
     });
 
-    // Función para llenar el dropdown de países
-    function llenarPaises(paises) {
-      $.each(paises, function(i, p) {
-        var option = $('<option>').val(p.id).text(p.nombre);
-        paisSelect.append(option);
-      });
-    }
-
-    // 2. Al cambiar el país, llenar el dropdown de provincias
-    paisSelect.on('change', function() {
-      provinciaSelect.empty().append($('<option>').val('').text('Seleccione una provincia'));
-      cantonSelect.empty().append($('<option>').val('').text('Seleccione un cantón'));
-      distritoSelect.empty().append($('<option>').val('').text('Seleccione un distrito'));
-
-      var selectedPaisId = paisSelect.val();
-      if(!selectedPaisId) return;
-
-      var paisSeleccionado = ubicacionesData.find(function(item) {
-        return item.id == selectedPaisId;
-      });
-      if(paisSeleccionado && paisSeleccionado.provincias) {
-        $.each(paisSeleccionado.provincias, function(i, prov) {
-          var option = $('<option>').val(prov.id).text(prov.nombre);
-          provinciaSelect.append(option);
-        });
-      }
+    // Actualiza la barra de progreso mientras escribe
+    pwd.on('input', () => {
+      const score = checkPasswordStrength(pwd.val());
+      const pct = (score/5)*100;
+      progress.css('width', pct + '%')
+              .toggleClass('bg-danger', score<=2)
+              .toggleClass('bg-warning', score===3)
+              .toggleClass('bg-success', score>=4)
+              .attr('aria-valuenow', pct);
     });
 
-    // 3. Al cambiar la provincia, llenar el dropdown de cantones
-    provinciaSelect.on('change', function() {
-      cantonSelect.empty().append($('<option>').val('').text('Seleccione un cantón'));
-      distritoSelect.empty().append($('<option>').val('').text('Seleccione un distrito'));
-
-      var selectedPaisId = paisSelect.val();
-      var selectedProvinciaId = provinciaSelect.val();
-      if(!selectedProvinciaId) return;
-
-      var paisSeleccionado = ubicacionesData.find(function(item) {
-        return item.id == selectedPaisId;
-      });
-      if(paisSeleccionado && paisSeleccionado.provincias) {
-        var provinciaSeleccionada = paisSeleccionado.provincias.find(function(prov) {
-          return prov.id == selectedProvinciaId;
-        });
-        if(provinciaSeleccionada && provinciaSeleccionada.cantones) {
-          $.each(provinciaSeleccionada.cantones, function(i, cant) {
-            var option = $('<option>').val(cant.id).text(cant.nombre);
-            cantonSelect.append(option);
-          });
-        }
-      }
-    });
-
-    // 4. Al cambiar el cantón, llenar el dropdown de distritos
-    cantonSelect.on('change', function() {
-      distritoSelect.empty().append($('<option>').val('').text('Seleccione un distrito'));
-
-      var selectedPaisId = paisSelect.val();
-      var selectedProvinciaId = provinciaSelect.val();
-      var selectedCantonId = cantonSelect.val();
-      if(!selectedCantonId) return;
-
-      var paisSeleccionado = ubicacionesData.find(function(item) {
-        return item.id == selectedPaisId;
-      });
-      if(paisSeleccionado && paisSeleccionado.provincias) {
-        var provinciaSeleccionada = paisSeleccionado.provincias.find(function(prov) {
-          return prov.id == selectedProvinciaId;
-        });
-        if(provinciaSeleccionada && provinciaSeleccionada.cantones) {
-          var cantonSeleccionado = provinciaSeleccionada.cantones.find(function(cant) {
-            return cant.id == selectedCantonId;
-          });
-          if(cantonSeleccionado && cantonSeleccionado.distritos) {
-            $.each(cantonSeleccionado.distritos, function(i, dist) {
-              var option = $('<option>').val(dist.id).text(dist.nombre);
-              distritoSelect.append(option);
-            });
-          }
-        }
-      }
-    });
-
-    // 5. Función para chequear la fuerza de la contraseña
     function checkPasswordStrength(password) {
-      var score = 0;
-      if(password.length >= 14) score++;
-      if(/[A-Z]/.test(password)) score++;
-      if(/[a-z]/.test(password)) score++;
-      if(/\d/.test(password)) score++;
-      if(/[!@#$%^&*()_\-+={}\[\]|\\:;"'<>,.?/`~]/.test(password)) score++;
+      let score = 0;
+      if (password.length >= 14) score++;
+      if (/[A-Z]/.test(password)) score++;
+      if (/[a-z]/.test(password)) score++;
+      if (/\d/.test(password))      score++;
+      if (/[!@#$%^&*()_\-+={}[\]|\\:;"'<>,.?/`~]/.test(password)) score++;
       return score;
     }
-
-    // Actualizar la barra de progreso a medida que se escribe la contraseña
-    passwordField.on('input', function() {
-      var pwdValue = passwordField.val();
-      var score = checkPasswordStrength(pwdValue);
-      var percentage = (score / 5) * 100;
-      passwordProgress.css('width', percentage + '%');
-      passwordProgress.attr('aria-valuenow', percentage);
-
-      passwordProgress.removeClass('bg-danger bg-warning bg-success');
-      if(score <= 2) {
-        passwordProgress.addClass('bg-danger');
-      } else if(score === 3) {
-        passwordProgress.addClass('bg-warning');
-      } else {
-        passwordProgress.addClass('bg-success');
-      }
-    });
-
-    // 6. Enviar el formulario usando AJAX
-    crearCuentaForm.on('submit', function(e) {
-      e.preventDefault();
-      mensajeError.hide();
-
-      var nombreusuario = nombreusuarioField.val().trim();
-      var correo = correoField.val().trim();
-      var password = passwordField.val();
-      var confirmPassword = confirmPasswordField.val();
-
-      // Recoger los valores seleccionados de los dropdowns (se envían los IDs)
-      var pais = paisSelect.val();
-      var provincia = provinciaSelect.val();
-      var canton = cantonSelect.val();
-      var distrito = distritoSelect.val();
-
-      // Validar que las contraseñas coincidan
-      if(password !== confirmPassword) {
-        mensajeError.text('Las contraseñas no coinciden.').show();
-        return;
-      }
-
-      // Chequear la fuerza de la contraseña
-      var score = checkPasswordStrength(password);
-      if(score < 5) {
-        mensajeError.text('La contraseña no cumple los requisitos de seguridad.').show();
-        return;
-      }
-
-      // Enviar los datos al endpoint para crear el comprador mediante AJAX POST
-      $.ajax({
-        url: 'http://localhost:3300/api/insertarcomprador',
-        type: 'POST',
-        data: JSON.stringify({
-          nombreusuario: nombreusuario,
-          correo: correo,
-          contrasenia: password,
-          pais: pais,
-          provincia: provincia,
-          canton: canton,
-          distrito: distrito
-        }),
-        contentType: 'application/json',
-        dataType: 'json',
-        success: function(resp) {
-          console.log('Respuesta del servidor:', resp);
-          if(resp.success) {
-            alert('Cuenta creada exitosamente');
-            
-          } else {
-            mensajeError.text(resp.error || 'Error al crear la cuenta.').show();
-          }
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          console.error('Error al crear cuenta:', errorThrown);
-          mensajeError.text('Error al crear la cuenta: ' + errorThrown).show();
-        }
-      });
-    });
   }
 });

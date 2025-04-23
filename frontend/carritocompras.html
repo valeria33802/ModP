@@ -3,179 +3,290 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Carrito de Compras - Checklist</title>
+  <title>Carrito de Compras</title>
 
   <!-- Bootstrap CSS -->
   <link 
     rel="stylesheet" 
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
   />
-  <!-- Bootstrap Icons (opcional) -->
+  <!-- Bootstrap Icons -->
   <link 
     rel="stylesheet" 
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" 
   />
- 
   <link rel="stylesheet" href="media/style.css" />
+  <style>
+    .cart-items {
+      max-height: 60vh;    /* por ejemplo, 60% de la altura de la ventana */
+      overflow-y: auto;
+    }
+  </style>
 </head>
 <body>
 
   <div class="container d-flex align-items-center justify-content-center min-vh-100">
-    
-    <!-- Contenedor principal del carrito -->
     <div class="cart-card p-4">
+
       
-      <!-- Flecha de retroceso -->
       <div class="mb-3">
-        <a href="#" class="text-dark">
+        <a href="catalogovistausuario.html" class="text-dark">
           <i class="bi bi-arrow-left fs-4"></i>
         </a>
       </div>
+
       
-      <!-- Ícono de usuario y título -->
       <div class="text-center mb-4">
         <div class="user-icon mx-auto mb-2">
           <i class="bi bi-person fs-3"></i>
         </div>
-        <h4 class="fw-bold m-0">Usuario</h4>
+        <h4 class="fw-bold m-0">TU ORDEN</h4>
       </div>
-      
-      <!-- Sección que contiene los productos del carrito -->
+
       <div class="cart-items p-3 mb-3">
-        
-        <!-- Producto 1 -->
-        <div class="shopping-item d-flex justify-content-between align-items-center mb-2">
-          <div class="form-check">
-            <input 
-              class="form-check-input product-checkbox" 
-              type="checkbox" 
-              value="15" 
-              id="item1" 
-              checked 
-            />
-            <label class="form-check-label" for="item1">
-              Teclado carcasa dise...
-            </label>
-          </div>
-          <span class="ms-2">
-            <i class="bi bi-currency-euro"></i> 15
-          </span>
+
+       
+        <div id="resumen-articulo" class="mb-4">
+          
         </div>
-        
-        <!-- Producto 2 -->
-        <div class="shopping-item d-flex justify-content-between align-items-center mb-2">
-          <div class="form-check">
-            <input 
-              class="form-check-input product-checkbox" 
-              type="checkbox" 
-              value="20" 
-              id="item2" 
-              checked
-            />
-            <label class="form-check-label" for="item2">
-              Teclado teclas naveg...
-            </label>
-          </div>
-          <span class="ms-2">
-            <i class="bi bi-currency-euro"></i> 20
-          </span>
+
+       
+        <ul id="lista-servicios"
+            class="list-group mb-4 overflow-auto"
+            style="max-height: 250px;">
+          
+        </ul>
+
+        <div class="mb-3">
+          <label for="cardNumber" class="form-label">Número de tarjeta</label>
+          <input type="text" class="form-control" id="cardNumber" placeholder="1234 5678 9012 3456" required>
         </div>
-        
-        <!-- Producto 3 -->
-        <div class="shopping-item d-flex justify-content-between align-items-center mb-2">
-          <div class="form-check">
-            <input 
-              class="form-check-input product-checkbox" 
-              type="checkbox" 
-              value="18" 
-              id="item3" 
-              checked
-            />
-            <label class="form-check-label" for="item3">
-              Teclado teclas de fun...
-            </label>
-          </div>
-          <span class="ms-2">
-            <i class="bi bi-currency-euro"></i> 18
-          </span>
+        <div class="mb-3">
+          <label for="cardHolder" class="form-label">Titular de la tarjeta</label>
+          <input type="text" class="form-control" id="cardHolder" placeholder="Nombre Apellido" required>
         </div>
-        
-        <!-- Producto 4 -->
-        <div class="shopping-item d-flex justify-content-between align-items-center mb-3">
-          <div class="form-check">
-            <input 
-              class="form-check-input product-checkbox" 
-              type="checkbox" 
-              value="12" 
-              id="item4" 
-              checked
-            />
-            <label class="form-check-label" for="item4">
-              Teclado de control di...
-            </label>
+        <div class="row gx-2 mb-3">
+          <div class="row gx-2 mb-3">
+            <div class="col">
+              <label for="cardExpiry" class="form-label">Vencimiento</label>
+              
+              <input 
+                type="date" 
+                class="form-control" 
+                id="cardExpiry" 
+                required
+              >
+            </div>
+          <div class="col">
+            <label for="cardCcv" class="form-label">CCV</label>
+            <input type="text" class="form-control" id="cardCcv" placeholder="123" maxlength="4" required>
           </div>
-          <span class="ms-2">
-            <i class="bi bi-currency-euro"></i> 12
-          </span>
         </div>
+
         
-        <!-- Ícono de carrito y total -->
         <div class="text-center mb-3">
           <div class="cart-icon mb-2">
-            <!-- Icono o imagen para el carrito -->
             <i class="bi bi-cart3 fs-1"></i>
           </div>
-          <!-- Aquí se mostrará el total calculado -->
-          <h5 class="m-0">Total: €<span id="cartTotal">65</span></h5>
+          <h5 class="m-0">Total: ₡<span id="cartTotal">0.00</span></h5>
         </div>
+
         
-        <!-- Botones Cancelar y Comprar -->
         <div class="d-flex justify-content-between">
-          <button type="button" class="btn btn-cancel">Cancelar</button>
-          <button type="button" class="btn btn-buy">Comprar</button>
+          <button type="button" class="btn btn-cancel" onclick="history.back()">Cancelar</button>
+          <button type="button" class="btn btn-buy" id="btnComprar">Comprar</button>
         </div>
       </div>
+
     </div>
-    
   </div>
 
-  <!-- jQuery -->
-  <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
   <!-- Bootstrap JS -->
   <script 
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
   </script>
 
-  <!-- Script adicional para calcular el total
   <script>
-    $(document).ready(function() {
-      // Función para recalcular el total cada vez que se cambia un checkbox
-      function recalculateTotal() {
-        let total = 0;
-        // Seleccionamos todos los checkboxes marcados
-        $('.product-checkbox:checked').each(function() {
-          total += parseFloat($(this).val());
-        });
-        $('#cartTotal').text(total);
-      }
+  document.addEventListener('DOMContentLoaded', async () => {
+    const params = new URLSearchParams(window.location.search);
+    const idArticulo     = params.get('idArticulo');
+    const nombreArticulo = params.get('nombre');
+    const precioBase     = parseFloat(params.get('precio')) || 0;
 
-      // Evento: cada vez que el usuario marca/desmarca un producto
-      $('.product-checkbox').on('change', function(){
-        recalculateTotal();
+    
+    const resumenDiv = document.getElementById('resumen-articulo');
+    resumenDiv.innerHTML = `
+      <p><strong>Nombre:</strong> ${nombreArticulo}</p>
+      <p><strong>ID Artículo:</strong> ${idArticulo}</p>
+      <p><strong>Precio base:</strong> ₡${precioBase.toFixed(2)}</p>
+    `;
+
+    
+    function actualizarTotal() {
+      let total = precioBase;
+      document.querySelectorAll('.product-checkbox').forEach(cb => {
+        if (cb.checked) total += parseFloat(cb.value) || 0;
+      });
+      document.getElementById('cartTotal').innerText = total.toFixed(2);
+    }
+
+    
+    try {
+      const resp = await fetch(`/api/servicios/${encodeURIComponent(idArticulo)}`);
+      if (!resp.ok) throw new Error('Error al cargar servicios');
+      let servicios = await resp.json();
+
+      // Convertir precios a float
+      servicios = servicios.map(s => ({
+        id:    s.ID_Servicio,
+        desc:  s.SE_Descripcion,
+        precio: parseFloat(s.Precio) || 0
+      }));
+
+      const ul = document.getElementById('lista-servicios');
+      servicios.forEach((s, i) => {
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+
+        li.innerHTML = `
+          <div class="form-check">
+            <input 
+              class="form-check-input product-checkbox" 
+              type="checkbox" 
+              id="srv${i}" 
+              value="${s.precio.toFixed(2)}" 
+              data-service-id="${s.id}" 
+              checked
+            />
+            <label class="form-check-label" for="srv${i}">
+              ${s.desc}
+            </label>
+          </div>
+          <span>₡${s.precio.toFixed(2)}</span>
+        `;
+        ul.appendChild(li);
+
+        // Evento de recalculo
+        li.querySelector('.product-checkbox')
+          .addEventListener('change', actualizarTotal);
       });
 
-      // Inicializar el total al cargar la página (por si los checkboxes están marcados por defecto)
-      recalculateTotal();
+      // Inicializar total
+      actualizarTotal();
 
-      // Ejemplos de acción para los botones
-      $('.btn-cancel').on('click', function(){
-        alert('Compra cancelada (ejemplo)');
-      });
-      $('.btn-buy').on('click', function(){
-        alert('Compra realizada (ejemplo)');
-      });
-    }); -->
+    } catch (err) {
+      console.error(err);
+      document.getElementById('lista-servicios').innerHTML = `
+        <li class="list-group-item text-danger">
+          No se pudieron cargar las modificaciones.
+        </li>`;
+    }
+
+    document.getElementById('btnComprar').addEventListener('click', async () => {
+ 
+  const idArticulo = params.get('idArticulo');
+  const precioBase = parseFloat(params.get('precio')) || 0;
+
+  
+  const seleccionados = Array.from(document.querySelectorAll('.product-checkbox'))
+          .filter(cb => cb.checked)
+          .map(cb => ({
+            id:    cb.dataset.serviceId,         
+            precio: parseFloat(cb.value) || 0,
+            desc:  cb.nextElementSibling.innerText
+          }));
+
+  const modIds      = seleccionados.map(x => x.id).join(',');
+  const modPriceSum = seleccionados.reduce((sum, x) => sum + x.precio, 0);
+
+  
+  //tarjeta
+  const cardNumber = document.getElementById('cardNumber').value.replace(/\s+/g,'');
+  const cardCvv    = document.getElementById('cardCcv').value;
+  const cardName   = document.getElementById('cardHolder').value;
+  
+  const rawExpire  = document.getElementById('cardExpiry').value;
+  
+  const cardExpire = rawExpire + '-01';
+
+  try {
+    const resp = await fetch('/api/proyecto', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        idarticulo:       idArticulo,
+        p_art_price:      precioBase,
+        p_mod_price_sum:  modPriceSum,
+        p_modificaciones: modIds,
+        card_number:      cardNumber,
+        card_cvv:         cardCvv,
+        card_name:        cardName,
+        p_card_expire:      cardExpire
+      })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({ error: resp.statusText }));
+      throw new Error(err.error || JSON.stringify(err));
+    }
+
+    const { ProyectoID, PrecioFinal } = await resp.json();
+    alert(`Proyecto #${ProyectoID} comenzado\nPrecio final: ₡${PrecioFinal.toFixed(2)}`);
+  } catch (e) {
+    console.error(e);
+    alert('Error al crear proyecto:\n' + e.message);
+  }
+});
+
+  //   document.getElementById('btnComprar')
+  //     .addEventListener('click', async () => {
+  //       const params      = new URLSearchParams(window.location.search);
+  //       const idArticulo  = params.get('idArticulo');
+  //       const precioBase  = parseFloat(params.get('precio')) || 0;
+
+  //       // servicios seleccionados…
+  //       const seleccionados = Array.from(document.querySelectorAll('.product-checkbox'))
+  //         .filter(cb => cb.checked)
+  //         .map(cb => ({
+  //           id:    cb.dataset.serviceId,         
+  //           precio: parseFloat(cb.value) || 0,
+  //           desc:  cb.nextElementSibling.innerText
+  //         }));
+
+  //       // CSV de IDs y suma de precios
+  //       const modIds      = seleccionados.map(x => x.id).join(',');
+  //       const modPriceSum = seleccionados.reduce((sum, x) => sum + x.precio, 0);
+
+  //       try {
+  //         const resp = await fetch('/api/proyecto', {
+  //           method: 'POST',
+  //           headers: { 'Content-Type': 'application/json' },
+  //           body: JSON.stringify({
+  //             idarticulo:       idArticulo,
+  //             p_art_price:      precioBase,      
+  //             p_mod_price_sum:  modPriceSum,     
+  //             p_modificaciones: modIds           
+  //           })
+  //         });
+
+  //         if (!resp.ok) {
+  //           const err = await resp.json().catch(() => ({ error: resp.statusText }));
+  //           throw new Error(err.error || JSON.stringify(err));
+  //         }
+
+  //         const { ProyectoID, PrecioFinal } = await resp.json();
+
+  //         alert(
+  //           `¡Proyecto #${ProyectoID} creado!\n` +
+  //           `Precio final: ₡${PrecioFinal.toFixed(2)}`
+  //         );
+  //       } catch (e) {
+  //         console.error(e);
+  //         alert('Error al crear proyecto:\n' + e.message);
+  //       }
+  //     });
+
+   });
   </script>
-
 </body>
 </html>

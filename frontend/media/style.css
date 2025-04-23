@@ -3,6 +3,8 @@ body {
     margin: 0;
     padding: 0;
     background-color: #88CED7;
+    height: 100%;
+    overflow: hidden;
   }
   
   /* Título principal */
@@ -219,8 +221,15 @@ body {
     background-color: #fff;
     border-radius: 1rem;
     box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+    height: 80vh;  /* Define la altura en función del viewport */
+  overflow: hidden;
   }
   
+  #catalogContainer {
+    height: calc(80vh - 50px); /* Por ejemplo, restamos la altura del encabezado o margen */
+    overflow-y: auto;  /* El scroll se mostrará aquí si el contenido excede esta altura */
+    padding-right: 10px; /* Opcional, para evitar que el contenido quede tapado por el scrollbar */
+  }
   /* Items del catálogo */
   .catalog-item {
     background-color: #B6F0CE; /* Color similar al de tu Figma */
@@ -510,16 +519,16 @@ body {
 
 /* ------------------------------------
   ------------------------------------ */
-
-  /* Estilo de progreso de reseñas */
-
-/* Tarjeta de reseñas */
+/* Tarjeta general de reseñas */
 .reviews-card {
+  /* Se elimina display: flex; para que el contenido se apile en bloque */
+  margin-bottom: 1rem;
   max-width: 400px;
   width: 100%;
   background-color: #fff;
   border-radius: 1rem;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  padding: 20px;  /* Opcional: Padding interno para separar bien los elementos */
 }
 
 /* Ícono principal en la parte superior (círculo) */
@@ -531,24 +540,32 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 0 auto 20px;
 }
 
-/* Reseñas existentes */
+/* Sección de reseñas existentes */
 .existing-reviews {
   background-color: #ECECEC;
   border-radius: 0.5rem;
   padding: 10px;
+  /* Configuramos una altura máxima para que se muestre el scroll si hay muchos comentarios */
+  max-height: 300px;      /* Puedes ajustar este valor según el diseño deseado */
+  overflow-y: auto;       /* Habilita el scroll vertical */
 }
 
-/* Cada reseña */
+/* Cada reseña individual */
 .review-item {
+  display: flex;
+  align-items: flex-start;  /* Alinea el ícono y el contenido en la parte superior */
   background-color: #fff;
   border-radius: 0.5rem;
   padding: 10px;
+  margin-bottom: 1rem; /* Espacio entre reseñas */
 }
 
-/* Ícono de usuario */
+/* Ícono de usuario en cada reseña */
 .user-img {
+  flex-shrink: 0;
   width: 40px;
   height: 40px;
   background-color: #D9D9D9;
@@ -556,23 +573,134 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-right: 0.5rem;
 }
 
-/* Estrellas fijas (para reseñas existentes) */
+/* Contenedor de estrellas */
+.review-content .stars {
+  white-space: nowrap;
+  margin-bottom: 0.25rem;
+}
+
+/* Estilo de las estrellas */
 .review-content .stars i {
-  color: #FBC02D; /* Color dorado */
+  color: #FBC02D;
+}
+
+/* Texto del comentario */
+.review-content p {
+  margin: 0;
+  line-height: 1.4;
+  word-wrap: break-word;
 }
 
 /* Sección para nueva reseña */
 .new-review {
   background-color: #ECECEC;
   border-radius: 0.5rem;
+  padding: 10px;
+  margin-top: 20px; /* Espaciado superior */
 }
 
-/* Estrellas interactivas */
+/* Estrellas interactivas para nueva reseña */
 .stars-interactive i {
   font-size: 1.5rem;
-  color: #FBC02D; /* Color dorado */
+  color: #FBC02D;
+  cursor: pointer;
+  margin: 0 5px;
+}
+
+.stars-interactive i:hover {
+  filter: brightness(1.2);
+}
+/* Tarjeta general de reseñas con scroll externo */
+.reviews-card {
+  margin-bottom: 1rem;
+  max-width: 400px;
+  width: 100%;
+  background-color: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  padding: 20px;  /* Espacio interno */
+  max-height: 80vh; /* Alto máximo para la tarjeta (ajusta según tu diseño) */
+  overflow-y: auto;  /* Se activa el scroll vertical si el contenido supera el alto */
+}
+
+/* Ícono principal en la parte superior (círculo) */
+.review-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+
+/* Sección de reseñas existentes con scroll interno */
+.existing-reviews {
+  background-color: #ECECEC;
+  border-radius: 0.5rem;
+  padding: 10px;
+  max-height: 300px;      /* Altura máxima para el contenedor de comentarios */
+  overflow-y: auto;       /* Scroll vertical para los comentarios */
+  margin-bottom: 20px;    /* Separación con la sección de nueva reseña */
+}
+
+/* Cada reseña individual */
+.review-item {
+  display: flex;
+  align-items: flex-start;  /* Alinea el ícono y el contenido en la parte superior */
+  background-color: #fff;
+  border-radius: 0.5rem;
+  padding: 10px;
+  margin-bottom: 1rem; /* Espacio entre reseñas */
+}
+
+/* Ícono de usuario en cada reseña */
+.user-img {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  background-color: #D9D9D9;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.5rem;
+}
+
+/* Contenedor de estrellas */
+.review-content .stars {
+  white-space: nowrap;
+  margin-bottom: 0.25rem;
+}
+
+/* Color de las estrellas */
+.review-content .stars i {
+  color: #FBC02D;
+}
+
+/* Texto del comentario */
+.review-content p {
+  margin: 0;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+/* Sección para nueva reseña */
+.new-review {
+  background-color: #ECECEC;
+  border-radius: 0.5rem;
+  padding: 10px;
+  margin-top: 20px;
+}
+
+/* Estrellas interactivas para nueva reseña */
+.stars-interactive i {
+  font-size: 1.5rem;
+  color: #FBC02D;
   cursor: pointer;
   margin: 0 5px;
 }
@@ -581,78 +709,6 @@ body {
   filter: brightness(1.2);
 }
 
-/* ------------------------------------
-  ------------------------------------ */
-
-  /* Estilo de progreso de inventario */
-
-
-/* Tarjeta contenedora del Inventario */
-.inventory-card {
-  max-width: 400px;
-  width: 100%;
-  background-color: #fff;
-  border-radius: 1rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-/* Ícono de usuario */
-.user-icon {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background-color: #ccc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Contenedor que tendrá scroll vertical */
-.inventory-list {
-  background-color: #ECECEC;
-  border-radius: 0.5rem;
-  max-height: 300px; /* Ajusta el alto máximo según tu diseño */
-  overflow-y: auto;  /* Scroll vertical */
-}
-
-/* Personaliza la barra de scroll en navegadores WebKit (Chrome, Safari) */
-.inventory-list::-webkit-scrollbar {
-  width: 8px;
-}
-
-.inventory-list::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
-}
-
-.inventory-list::-webkit-scrollbar-thumb {
-  background: #0B265C;
-  border-radius: 10px;
-}
-
-.inventory-list::-webkit-scrollbar-thumb:hover {
-  background: #092044;
-}
-
-/* Cada tarjeta de ítem */
-.item-card {
-  background-color: #E8F0F2; /* Cambia este color si gustas */
-  border-radius: 0.5rem;
-  text-align: center;
-}
-
-/* Contenedor de la imagen */
-.item-image {
-  width: 100%;
-  background-color: #D9D9D9; /* Gris de placeholder */
-  border-radius: 0.25rem;
-}
-
-.item-card p {
-  font-size: 0.9rem;
-  margin: 0;
-  color: #0B265C;
-}
 
 /* ------------------------------------
   ------------------------------------ */

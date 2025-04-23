@@ -25,16 +25,26 @@ async function loginUser(nombreusuario, contrasenia) {
     }
   }
 
-  async function sp_InsertarComprador(nombreusuario, correo, contrasenia, pais, provincia, canton, distrito) {
-    try {
+  // async function sp_InsertarComprador(nombreusuario, correo, contrasenia, nombre, apellido, direccion) {
+  //   try {
       
-      const [result] = await pool.query('CALL sp_insert_comprador(?, ?, ?, ?, ?, ?, ?)', [nombreusuario, correo, contrasenia, pais, provincia, canton, distrito]);
-      const data = result[0];
-      return data;
-    } catch (error) {
-      console.error('Error al insertar comprador:', error);
-      throw error;
-    }
+  //     const [result] = await pool.query('CALL sp_insert_comprador(?, ?, ?, ?, ?, ?)', [nombreusuario, correo, contrasenia, nombre, apellido, direccion]);
+  //     const data = result[0];
+  //     return data;
+  //   } catch (error) {
+  //     console.error('Error al insertar comprador:', error);
+  //     throw error;
+  //   }
+  // }
+
+  async function sp_InsertarComprador(
+    nombreusuario, correo, contrasenia, nombre, apellido, direccion
+  ) {
+    const [result] = await pool.query(
+      'CALL sp_insert_comprador(?, ?, ?, ?, ?, ?)',
+      [nombreusuario, correo, contrasenia, nombre, apellido, direccion]
+    );
+    return result[0];
   }
 
   async function sp_ModificarComprador( ncorreo, ncontrasenia, nnombre, napellido, ndireccion) {
@@ -85,17 +95,70 @@ async function loginUser(nombreusuario, contrasenia) {
     }
   }
 
-  async function sp_insert_proyecto_final(idarticulo, idcomprador, p_modificaciones) {
-    try {
+  // async function sp_insert_proyecto_final(idarticulo, idcomprador, p_modificaciones) {
+  //   try {
       
-      const [result] = await pool.query('CALL sp_insert_proyecto_final(?, ?, ?)', [idarticulo, idcomprador, p_modificaciones]);
-      const data = result[0];
-      return data;
-    } catch (error) {
-      console.error('Error al ejecutar crear proyecto', error);
-      throw error;
+  //     const [result] = await pool.query('CALL sp_insert_proyecto_final(?, ?, ?)', [idarticulo, idcomprador, p_modificaciones]);
+  //     const data = result[0];
+  //     return data;
+  //   } catch (error) {
+  //     console.error('Error al ejecutar crear proyecto', error);
+  //     throw error;
+  //   }
+  // }
+
+  // async function sp_insert_proyecto_final(
+  //   p_ID_Articulo,
+  //   p_art_price,
+  //   p_mod_price_sum,
+  //   p_modificaciones
+  // ) {
+  //   try {
+  //     const [rows] = await pool.query(
+  //       'CALL sp_insert_proyecto_final(?, ?, ?, ?)',
+  //       [p_ID_Articulo, p_art_price, p_mod_price_sum, p_modificaciones]
+  //     );
+  //     // MySQL devuelve un array de result-sets; el primero contiene el SELECT final
+  //     return rows[0];
+  //   } catch (error) {
+  //     console.error('Error en sp_insert_proyecto_final:', error);
+  //     throw error;
+  //   }
+  // }
+
+  async function sp_insert_proyecto_final(
+    p_ID_Articulo,
+    p_art_price,
+    p_mod_price_sum,
+    p_modificaciones,
+    p_card_number,
+    p_card_cvv,
+    p_card_name,
+    p_card_expire
+  ) {
+    try {
+      const [resultSets] = await pool.query(
+        'CALL sp_insert_proyecto_final(?, ?, ?, ?, ?, ?, ?, ?)',
+        [
+          p_ID_Articulo,
+          p_art_price,
+          p_mod_price_sum,
+          p_modificaciones,
+          p_card_number,
+          p_card_cvv,
+          p_card_name,
+          p_card_expire
+        ]
+      );
+      // el primer resultSet contiene el SELECT final del SP
+      return resultSets[0];
+    } catch (err) {
+      console.error('Error al ejecutar sp_insert_proyecto_final:', err);
+      throw err;
     }
   }
+  
+  
 
   async function sp_sumar_stock(id, incremento) {
     try {
@@ -120,7 +183,7 @@ async function loginUser(nombreusuario, contrasenia) {
       throw error;
     }
   }
-
+// obtiene la información del último usuario que hizo login
   const sp_generar_info_ultimo_comprador = async () => {
     try {
         const [rows] = await pool.query('CALL sp_generar_info_ultimo_comprador()');
@@ -130,7 +193,7 @@ async function loginUser(nombreusuario, contrasenia) {
         throw error;
     }
 };
-
+//ver historial del usuario
 const sp_historial_compra_ultimo_usuario = async () => {
   try {
     const [rows] = await pool.query('CALL sp_historial_compra_ultimo_usuario()');
@@ -140,7 +203,7 @@ const sp_historial_compra_ultimo_usuario = async () => {
     throw error;
   }
 };
-
+//modificar los datos del empleado
 async function sp_modificar_empleado(id, ncorreo, ncontrasenia, npuesto, nnombre, napellido, nhorario) {
   try {
     
@@ -152,7 +215,7 @@ async function sp_modificar_empleado(id, ncorreo, ncontrasenia, npuesto, nnombre
     throw error;
   }
 }
-
+//obtener los perifericos para verlos 
 const obtenerperifericos = async () => {
   try {
     // Llamamos al SP que ejecuta la vista
@@ -232,16 +295,16 @@ async function sp_validar_codigo(codigo) {
   }
 }
 
-async function getUbicaciones() {
-  try {
-    const [rows] = await pool.query('CALL sp_get_ubicaciones()');
-    // rows[0] suele ser un array con una única fila, donde la propiedad "ubicaciones" contiene el JSON
-    const result = rows[0][0].ubicaciones;
-    return result;
-  } catch (error) {
-    throw error;
-  }
-}
+// async function getUbicaciones() {
+//   try {
+//     const [rows] = await pool.query('CALL sp_get_ubicaciones()');
+//     // rows[0] suele ser un array con una única fila, donde la propiedad "ubicaciones" contiene el JSON
+//     const result = rows[0][0].ubicaciones;
+//     return result;
+//   } catch (error) {
+//     throw error;
+//   }
+// }
 
   module.exports = {
     obtenerperifericos,
@@ -262,5 +325,5 @@ async function getUbicaciones() {
     sp_obtener_correo_usuario,
     sp_cambio_contrasenia,
     sp_validar_codigo, 
-    getUbicaciones
+   
 };

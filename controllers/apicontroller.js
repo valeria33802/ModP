@@ -31,13 +31,26 @@ router.post('/login', async (req, res) => {
 });
 
 // Endpoint para insertar comprador
+// router.post('/insertarcomprador', async (req, res) => {
+//   try {
+//     const {nombreusuario, correo, contrasenia, nombre, apellido, direccion } = req.body;
+//     const response = await servicios.insertarCompradorService(nombreusuario, correo, contrasenia, nombre, apellido, direccion);
+//     res.json(response);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
 router.post('/insertarcomprador', async (req, res) => {
+  console.log(req.body);
+  const { nombreusuario, correo, contrasenia, nombre, apellido, direccion } = req.body;
   try {
-    const {nombreusuario, correo, contrasenia, pais, provincia, canton, distrito } = req.body;
-    const response = await servicios.insertarCompradorService(nombreusuario, correo, contrasenia, pais, provincia, canton, distrito);
-    res.json(response);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    const result = await servicios.insertarCompradorService(
+      nombreusuario, correo, contrasenia, nombre, apellido, direccion
+    );
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -88,16 +101,48 @@ router.put('/empleado/:id', async (req, res) => {
 });
 
 // Endpoint para insertar proyecto final
+// router.post('/proyecto', async (req, res) => {
+//   try {
+//     const { idarticulo, idcomprador, p_modificaciones } = req.body;
+//     const response = await servicios.insertProyectoFinalService(idarticulo, idcomprador, p_modificaciones);
+//     res.json(response);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
+// 
 router.post('/proyecto', async (req, res) => {
   try {
-    const { idarticulo, idcomprador, p_modificaciones } = req.body;
-    const response = await servicios.insertProyectoFinalService(idarticulo, idcomprador, p_modificaciones);
-    res.json(response);
+    const {
+      idarticulo,
+      p_art_price,
+      p_mod_price_sum,
+      p_modificaciones,
+      card_number,
+      card_cvv,
+      card_name,
+      card_expire
+    } = req.body;
+
+    const [result] = await servicios.insertProyectoFinalService(
+      idarticulo,
+      p_art_price,
+      p_mod_price_sum,
+      p_modificaciones,
+      card_number,
+      card_cvv,
+      card_name,
+      card_expire  // fijarse que aquí coincida el nombre
+    );
+
+    
+    res.json(result);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: error.message });
   }
 });
-
 // Endpoint para sumar stock
 router.put('/stock', async (req, res) => {
   try {
@@ -211,7 +256,7 @@ router.get('/calificaciones', async (req, res) => {
   }
 });
 
-
+// para insertar código generado por el generador
 router.post('/insertarcodigo', async (req, res) => {
   try {
     const {codigo, tiempocreacion, tiempovencimiento } = req.body;
@@ -222,7 +267,7 @@ router.post('/insertarcodigo', async (req, res) => {
   }
 });
 
-
+// para cambio de contraseña
 router.post('/cambiocontrasenia', async (req, res) => {
   try {
     const {npass} = req.body;
@@ -233,12 +278,13 @@ router.post('/cambiocontrasenia', async (req, res) => {
   }
 });
 
+// 
 router.get('/obtenercorreo', async (req, res) => {
   try {
     const perifericos = await servicios.sp_obtener_correo_usuarioService();
     res.json(perifericos);
   } catch (error) {
-    console.error('Error en /perifericos:', error);
+    console.error('Error en api:', error);
     res.status(500).json({ error: 'Error al obtener los periféricos' });
   }
 });
@@ -341,16 +387,18 @@ router.post('/verificar-codigo-cambiar-pass', async (req, res) => {
   }
 });
 
-router.get('/ubicaciones', async (req, res) => {
-  try {
-    const ubicaciones = await servicios.obtenerUbicacionesService();
-    // Si es necesario, parsea el resultado:
-    // res.json({ success: true, ubicaciones: JSON.parse(ubicaciones) });
-    res.json({ success: true, ubicaciones });
-  } catch (error) {
-    console.error('Error en /ubicaciones:', error);
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
+
+// api para obtener ubicaciones (descon)
+// router.get('/ubicaciones', async (req, res) => {
+//   try {
+//     const ubicaciones = await servicios.obtenerUbicacionesService();
+//     // Si es necesario, parsea el resultado:
+//     // res.json({ success: true, ubicaciones: JSON.parse(ubicaciones) });
+//     res.json({ success: true, ubicaciones });
+//   } catch (error) {
+//     console.error('Error en /ubicaciones:', error);
+//     res.status(500).json({ success: false, error: error.message });
+//   }
+// });
 
 module.exports = router;
